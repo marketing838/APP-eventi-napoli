@@ -46,7 +46,6 @@ const BADGE_COLORS: Record<string, string> = {
     VIS: 'bg-teal-100 text-teal-700 border-teal-300',
     REA: 'bg-rose-100 text-rose-700 border-rose-300',
     DAM: 'bg-indigo-100 text-indigo-700 border-indigo-300',
-    AURA: 'bg-amber-100 text-amber-700 border-amber-300',
     GENERAL: 'bg-slate-100 text-slate-700 border-slate-300',
 };
 
@@ -174,8 +173,8 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ activeEvent, onEven
             {/* Status message */}
             {status && (
                 <div className={`px-6 py-4 rounded-2xl text-[12px] font-bold border-2 ${status.type === 'success' ? 'bg-emerald-50 text-emerald-700 border-emerald-300' :
-                        status.type === 'warning' ? 'bg-amber-50 text-amber-700 border-amber-300' :
-                            'bg-rose-50 text-rose-700 border-rose-300'
+                    status.type === 'warning' ? 'bg-amber-50 text-amber-700 border-amber-300' :
+                        'bg-rose-50 text-rose-700 border-rose-300'
                     }`}>
                     {status.type === 'success' ? '✅ ' : status.type === 'warning' ? '⚠️ ' : '❌ '}{status.msg}
                 </div>
@@ -206,7 +205,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ activeEvent, onEven
                         const isApplying = applying === tpl.id;
                         const needsConfirm = confirmReplace === tpl.id;
                         const isDeleting = deletingId === tpl.id;
-                        const isSeed = ['tpl-vis', 'tpl-rea', 'tpl-dam', 'tpl-aura', 'tpl-general'].includes(tpl.id);
+                        const isSeed = ['tpl-vis', 'tpl-rea', 'tpl-dam', 'tpl-general'].includes(tpl.id);
                         const dynamicCount = tpl.fields.filter(f => !f.locked && f.visibleInAdminTable !== false).length;
 
                         return (
@@ -259,8 +258,8 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ activeEvent, onEven
                                                 onClick={() => handleSelect(tpl)}
                                                 disabled={isApplying}
                                                 className={`px-5 py-2 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all border-4 disabled:opacity-50 ${isActive
-                                                        ? 'bg-white text-emerald-700 border-emerald-300 hover:border-emerald-500'
-                                                        : 'bg-black text-white border-black hover:bg-zinc-800 shadow-xl border-b-4 border-zinc-900'
+                                                    ? 'bg-white text-emerald-700 border-emerald-300 hover:border-emerald-500'
+                                                    : 'bg-black text-white border-black hover:bg-zinc-800 shadow-xl border-b-4 border-zinc-900'
                                                     }`}
                                             >
                                                 {isApplying ? '...' : isActive ? 'Sostituisci' : 'Seleziona'}

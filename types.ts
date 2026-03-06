@@ -6,7 +6,7 @@ export enum CheckInStatus {
   NUOVO_LEAD = 'Nuovo Lead'
 }
 
-export type AcademyType = 'REA' | 'VIS' | 'DAM' | 'AURA' | 'GENERAL';
+export type AcademyType = 'REA' | 'VIS' | 'DAM' | 'GENERAL';
 
 export interface FieldDef {
   key: string;
@@ -87,7 +87,6 @@ export const ACADEMY_THEMES: Record<AcademyType, { primary: string, secondary: s
   REA: { primary: 'rose-600', secondary: 'rose-50', gradient: 'from-rose-600 to-pink-500', label: 'Makeup & Beauty' },
   VIS: { primary: 'teal-600', secondary: 'teal-50', gradient: 'from-teal-600 to-emerald-500', label: 'Tattoo & Arts' },
   DAM: { primary: 'indigo-600', secondary: 'indigo-50', gradient: 'from-indigo-600 to-blue-500', label: 'Digital Arts & Media' },
-  AURA: { primary: 'amber-600', secondary: 'amber-50', gradient: 'from-amber-600 to-yellow-500', label: 'Food & Fashion' },
   GENERAL: { primary: 'slate-700', secondary: 'slate-50', gradient: 'from-slate-700 to-slate-500', label: 'Eventi Generali' }
 };
 
@@ -108,12 +107,6 @@ export const ACADEMY_COURSES: Record<AcademyType, string[]> = {
     'Tattoo Annuale',
     'Bachelor Tattoo & Contemporary Illustration',
     'Piercing Annuale'
-  ],
-  AURA: [
-    'Cucina regionale annuale',
-    'Cucina bachelor triennale',
-    'Pasticceria regionale annuale',
-    'Pizzeria regionale'
   ],
   GENERAL: []
 };

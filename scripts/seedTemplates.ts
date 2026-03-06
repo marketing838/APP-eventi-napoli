@@ -80,17 +80,6 @@ const TEMPLATES = [
         ],
     },
     {
-        id: 'tpl-aura',
-        name: 'Template Food & Fashion (AURA)',
-        academyTag: 'AURA',
-        theme: { primary: 'amber-600', secondary: 'amber-50', gradient: 'from-amber-600 to-yellow-500' },
-        fields: [
-            ...BASE_LOCKED_FIELDS,
-            { key: 'dipartimento_interesse', label: 'Corso di Interesse', type: 'select', required: false, options: ['Cucina regionale annuale', 'Cucina bachelor triennale', 'Pasticceria regionale annuale', 'Pizzeria regionale'], visibleInAdminTable: true },
-            ...COMMON_EXTRA,
-        ],
-    },
-    {
         id: 'tpl-general',
         name: 'Template Generale',
         academyTag: 'GENERAL',
