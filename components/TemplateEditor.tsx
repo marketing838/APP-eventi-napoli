@@ -4,7 +4,7 @@ import { FormTemplate, FieldDef, AcademyType, ACADEMY_THEMES } from '../types';
 import { saveFormTemplate } from '../services/storageService';
 
 // ─── Costanti ────────────────────────────────────────────────────────────────
-const ACADEMY_OPTIONS: AcademyType[] = ['VIS', 'REA', 'DAM', 'AURA', 'GENERAL'];
+const ACADEMY_OPTIONS: AcademyType[] = ['VIS', 'REA', 'DAM', 'GENERAL'];
 const FIELD_TYPES: FieldDef['type'][] = ['text', 'email', 'tel', 'number', 'date', 'textarea', 'select', 'checkbox'];
 
 /** Chiavi riservate — non possono essere usate per campi custom */
@@ -232,7 +232,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template: initialTempla
         });
     };
 
-    const isSeedTemplate = ['tpl-vis', 'tpl-rea', 'tpl-dam', 'tpl-aura', 'tpl-general'].includes(tpl.id);
+    const isSeedTemplate = ['tpl-vis', 'tpl-rea', 'tpl-dam', 'tpl-general'].includes(tpl.id);
 
     return (
         <div className="space-y-6">
