@@ -1,0 +1,29 @@
+{
+  "name": "app-eventi-napoli",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "verify": "tsc --noEmit && npx tsx scripts/verify.ts",
+    "seed:templates": "npx tsx --env-file=.env.local scripts/seedTemplates.ts",
+    "test:e2e-3.2a": "npx tsx --env-file=.env.local scripts/e2eTest.ts"
+  },
+  "dependencies": {
+    "firebase": "^12.9.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
+  }
+}

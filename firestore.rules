@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Eventi e sub-collection lead ─────────────────────────────────────
+    match /events/{eventId} {
+      allow read, write: if true;
+
+      match /leads/{leadId} {
+        allow read, write: if true;
+      }
+    }
+
+    // ── Sessione globale sync ─────────────────────────────────────────────
+    match /settings/{docId} {
+      allow read, write: if true;
+    }
+
+    // ── Template moduli ───────────────────────────────────────────────────
+    match /formTemplates/{templateId} {
+      allow read, write: if true;
+    }
+
+    // ── Blocca tutto il resto (path non previsti dall'applicazione) ───────
+    // Impedisce scritture/letture su collection arbitrarie non note
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
