@@ -247,7 +247,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <option value="VIS">VIS (Tattoo)</option>
                 <option value="REA">REA (Makeup)</option>
                 <option value="DAM">DAM (Cinema)</option>
-                <option value="AURA">AURA (Fashion)</option>
               </select>
             </div>
             <button type="submit" className="bg-black text-white py-6 px-10 rounded-[1.5rem] font-black shadow-2xl hover:bg-zinc-800 transition-all uppercase tracking-tighter text-xl border-b-8 border-zinc-900">
@@ -384,8 +383,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
             onClick={() => fileInputRef.current?.click()}
             disabled={!activeEvent}
             className={`px-10 py-5 rounded-[1.5rem] font-black uppercase text-xs transition-all border-4 ${!activeEvent
-                ? 'bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed opacity-50'
-                : 'bg-white text-black border-gray-100 hover:border-black hover:shadow-lg'
+              ? 'bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed opacity-50'
+              : 'bg-white text-black border-gray-100 hover:border-black hover:shadow-lg'
               }`}
             title={!activeEvent ? "Devi prima creare o selezionare una sessione attiva per importare leads" : "Carica file CSV dei leads"}
           >

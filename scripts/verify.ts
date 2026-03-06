@@ -33,7 +33,6 @@ const ACADEMY_THEMES: Record<string, { primary: string; secondary: string; gradi
     REA: { primary: 'rose-600', secondary: 'rose-50', gradient: 'from-rose-600 to-pink-500', label: 'Makeup & Beauty' },
     VIS: { primary: 'teal-600', secondary: 'teal-50', gradient: 'from-teal-600 to-emerald-500', label: 'Tattoo & Arts' },
     DAM: { primary: 'indigo-600', secondary: 'indigo-50', gradient: 'from-indigo-600 to-blue-500', label: 'Digital Arts & Media' },
-    AURA: { primary: 'amber-600', secondary: 'amber-50', gradient: 'from-amber-600 to-yellow-500', label: 'Food & Fashion' },
     GENERAL: { primary: 'slate-700', secondary: 'slate-50', gradient: 'from-slate-700 to-slate-500', label: 'Eventi Generali' },
 };
 
@@ -41,7 +40,6 @@ const ACADEMY_COURSES: Record<string, string[]> = {
     DAM: ['Photography & Ai Innovation', 'Cinema & New Media', 'AI Powered Graphic & Web', 'VFX & Game Design'],
     REA: ['Beauty Design Bachelor', 'Make up Regionale Annuale'],
     VIS: ['Tattoo Annuale', 'Bachelor Tattoo & Contemporary Illustration', 'Piercing Annuale'],
-    AURA: ['Cucina regionale annuale', 'Cucina bachelor triennale', 'Pasticceria regionale annuale', 'Pizzeria regionale'],
     GENERAL: [],
 };
 
@@ -128,7 +126,7 @@ console.log('\n🔬 Smoke Tests — Phase 2 Verification\n');
 
 // 1. Default snapshot includes all 4 locked base fields
 console.log('📋 Test 1: getDefaultTemplateSnapshot');
-['VIS', 'REA', 'DAM', 'AURA', 'GENERAL'].forEach(academy => {
+['VIS', 'REA', 'DAM', 'GENERAL'].forEach(academy => {
     test(`[${academy}] has 4 locked base fields`, () => {
         const snap = getDefaultTemplateSnapshot(academy);
         const lockedKeys = snap.fields.filter(f => f.locked).map(f => f.key);
