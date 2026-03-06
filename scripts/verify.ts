@@ -38,8 +38,8 @@ const ACADEMY_THEMES: Record<string, { primary: string; secondary: string; gradi
 
 const ACADEMY_COURSES: Record<string, string[]> = {
     DAM: ['Photography & Ai Innovation', 'Cinema & New Media', 'AI Powered Graphic & Web', 'VFX & Game Design'],
-    REA: ['Beauty Design Bachelor', 'Make up Regionale Annuale'],
-    VIS: ['Tattoo Annuale', 'Bachelor Tattoo & Contemporary Illustration', 'Piercing Annuale'],
+    REA: ['Bachelor Beauty Design', 'Make up Regionale Annuale', 'Make up Beauty Pro'],
+    VIS: ['Tattoo Annuale'],
     GENERAL: [],
 };
 

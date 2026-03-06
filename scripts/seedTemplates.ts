@@ -53,7 +53,7 @@ const TEMPLATES = [
         theme: { primary: 'teal-600', secondary: 'teal-50', gradient: 'from-teal-600 to-emerald-500' },
         fields: [
             ...BASE_LOCKED_FIELDS,
-            { key: 'dipartimento_interesse', label: 'Corso di Interesse', type: 'select', required: false, options: ['Tattoo Annuale', 'Bachelor Tattoo & Contemporary Illustration', 'Piercing Annuale'], visibleInAdminTable: true },
+            { key: 'dipartimento_interesse', label: 'Corso di Interesse', type: 'select', required: false, options: ['Tattoo Annuale'], visibleInAdminTable: true },
             ...COMMON_EXTRA,
         ],
     },
@@ -64,7 +64,7 @@ const TEMPLATES = [
         theme: { primary: 'rose-600', secondary: 'rose-50', gradient: 'from-rose-600 to-pink-500' },
         fields: [
             ...BASE_LOCKED_FIELDS,
-            { key: 'dipartimento_interesse', label: 'Corso di Interesse', type: 'select', required: false, options: ['Beauty Design Bachelor', 'Make up Regionale Annuale'], visibleInAdminTable: true },
+            { key: 'dipartimento_interesse', label: 'Corso di Interesse', type: 'select', required: false, options: ['Bachelor Beauty Design', 'Make up Regionale Annuale', 'Make up Beauty Pro'], visibleInAdminTable: true },
             ...COMMON_EXTRA,
         ],
     },
@@ -99,20 +99,13 @@ async function seed() {
 
     for (const tpl of TEMPLATES) {
         const ref = doc(db, 'formTemplates', tpl.id);
-        const existing = await getDoc(ref);
-
-        if (existing.exists()) {
-            console.log(`  ⏭️  ${tpl.id} già esiste — skip`);
-            skipped++;
-            continue;
-        }
 
         await setDoc(ref, {
             ...tpl,
             createdAtMs: Date.now(),
             updatedAtMs: Date.now(),
         });
-        console.log(`  ✅ ${tpl.id} creato (${tpl.fields.length} campi)`);
+        console.log(`  ✅ ${tpl.id} aggiornato/creato (${tpl.fields.length} campi)`);
         created++;
     }
 

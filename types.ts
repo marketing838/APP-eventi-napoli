@@ -100,13 +100,12 @@ export const ACADEMY_COURSES: Record<AcademyType, string[]> = {
     'Acting'
   ],
   REA: [
-    'Beauty Desgin Bachelor',
-    'Make up Regionale Annuale'
+    'Bachelor Beauty Design',
+    'Make up Regionale Annuale',
+    'Make up Beauty Pro'
   ],
   VIS: [
-    'Tattoo Annuale',
-    'Bachelor Tattoo & Contemporary Illustration',
-    'Piercing Annuale'
+    'Tattoo Annuale'
   ],
   GENERAL: []
 };
