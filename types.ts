@@ -81,7 +81,7 @@ export interface Lead {
 
 export type ViewType = 'USER' | 'ADMIN';
 
-export const ORIENTATORI = ['Laura', 'Sara', 'Dario', 'Giulia', 'Costanza', 'Paolo'];
+export const ORIENTATORI = ['Melania', 'Sara', 'Giancarlo', 'Giulia', 'Costanza', 'Paolo'];
 
 export const ACADEMY_THEMES: Record<AcademyType, { primary: string, secondary: string, gradient: string, label: string }> = {
   REA: { primary: 'rose-600', secondary: 'rose-50', gradient: 'from-rose-600 to-pink-500', label: 'Makeup & Beauty' },
