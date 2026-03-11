@@ -102,11 +102,11 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onDelet
                 let oBorderClass = '';
 
                 switch (oInfo) {
-                  case 'laura': oBgColor = '#800080'; oTextClass = 'text-white'; oBadgeClass = 'bg-purple-900 border-purple-700 text-white'; oBorderClass = 'border-purple-900'; break;
+                  case 'Melania': oBgColor = '#800080'; oTextClass = 'text-white'; oBadgeClass = 'bg-purple-900 border-purple-700 text-white'; oBorderClass = 'border-purple-900'; break;
                   case 'sara': oBgColor = '#B2FFFF'; oTextClass = 'text-cyan-950'; oBadgeClass = 'bg-cyan-200 border-cyan-400 text-cyan-900'; oBorderClass = 'border-cyan-400'; break;
                   case 'costanza': oBgColor = '#FF00FF'; oTextClass = 'text-white'; oBadgeClass = 'bg-fuchsia-900 border-fuchsia-700 text-white'; oBorderClass = 'border-fuchsia-900'; break;
                   case 'giulia': oBgColor = '#FFA500'; oTextClass = 'text-orange-950'; oBadgeClass = 'bg-orange-200 border-orange-400 text-orange-950'; oBorderClass = 'border-orange-600'; break;
-                  case 'dario': oBgColor = '#008000'; oTextClass = 'text-white'; oBadgeClass = 'bg-green-900 border-green-700 text-white'; oBorderClass = 'border-green-900'; break;
+                  case 'Giancarlo': oBgColor = '#008000'; oTextClass = 'text-white'; oBadgeClass = 'bg-green-900 border-green-700 text-white'; oBorderClass = 'border-green-900'; break;
                   case 'paolo': oBgColor = '#FF6F61'; oTextClass = 'text-white'; oBadgeClass = 'bg-rose-900 border-rose-700 text-white'; oBorderClass = 'border-rose-900'; break;
                 }
 
