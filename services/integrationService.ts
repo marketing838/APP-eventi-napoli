@@ -9,18 +9,16 @@ export const sendLeadToZapier = async (lead: Lead, academy: string) => {
     const idCorso = lead.dipartimento_interesse || lead.corso_di_interesse || '';
 
     const payload = {
-      [academyKey]: {
-        idCorso: idCorso,
-        nome: lead.nome,
-        cognome: lead.cognome,
-        email: lead.email,
-        telefono: lead.cellulare,
-        tipoContatto: lead.come_ci_hai_conosciuto,
-        sede: 'Napoli',
-        accademia: academyKey.toUpperCase(),
-        tipoModulo: 'Check-in App Eventi',
-        sitoUrl: window.location.href
-      }
+      idCorso: idCorso,
+      nome: lead.nome,
+      cognome: lead.cognome,
+      email: lead.email,
+      telefono: lead.cellulare,
+      tipoContatto: lead.come_ci_hai_conosciuto,
+      sede: 'Napoli',
+      accademia: academyKey.toUpperCase(),
+      tipoModulo: 'Check-in App Eventi',
+      sitoUrl: window.location.href
     };
 
     console.log(`🚀 Sending lead to Zapier [${academyKey}]...`);
