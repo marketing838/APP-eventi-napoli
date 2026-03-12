@@ -17,6 +17,7 @@ export const sendLeadToZapier = async (lead: Lead, academy: string) => {
         telefono: lead.cellulare,
         tipoContatto: lead.come_ci_hai_conosciuto,
         sede: 'Napoli',
+        accademia: academyKey.toUpperCase(),
         tipoModulo: 'Check-in App Eventi',
         sitoUrl: window.location.href
       }
