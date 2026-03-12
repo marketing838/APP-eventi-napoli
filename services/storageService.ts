@@ -671,7 +671,7 @@ const escapeCSV = (val: string): string => {
 
 export const generateCSV = (leads: Lead[], templateSnapshot?: TemplateSnapshot): string => {
   // Colonne base (invariate)
-  const baseHeaders = ['Nome', 'Cognome', 'Corso di Interesse', 'Telefono', 'E-mail', 'Accompagnatore', 'Orientatore', 'Orientamento Fatto', 'Esito Iscrizione', 'Bloccato', 'Privacy Accettata', 'Stato Check-in', 'Data'];
+  const baseHeaders = ['Nome', 'Cognome', 'Corso di Interesse', 'Telefono', 'E-mail', 'Fonte', 'Accompagnatore', 'Orientatore', 'Orientamento Fatto', 'Esito Iscrizione', 'Bloccato', 'Privacy Accettata', 'Stato Check-in', 'Data'];
 
   // Colonne dinamiche (solo se snapshot presente)
   const dynamicFields = templateSnapshot
@@ -686,6 +686,7 @@ export const generateCSV = (leads: Lead[], templateSnapshot?: TemplateSnapshot):
     l.dipartimento_interesse || l.corso_di_interesse || '',
     l.cellulare,
     l.email,
+    l.come_ci_hai_conosciuto || '',
     l.accompagnatore || 'Nessuno',
     l.orientatore || 'Non Assegnato',
     l.orientamento_effettuato ? 'SI' : 'NO',

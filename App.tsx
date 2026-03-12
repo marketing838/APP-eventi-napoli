@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { ViewType, Lead, EventConfig } from './types';
+import { ViewType, Lead, EventConfig, CheckInStatus } from './types';
 import Header from './components/Header';
 import UserCheckin from './components/UserCheckin';
 import AdminDashboard from './components/AdminDashboard';
 import * as storage from './services/storageService';
+import { sendLeadToZapier } from './services/integrationService';
 
 const App: React.FC = () => {
   const [view, setView] = useState<ViewType>('USER');
@@ -100,6 +101,11 @@ const App: React.FC = () => {
               // dell'admin o degli altri tablet. L'Admin col listener
               // si occuperà di aggiornare l'UI di default.
               await storage.saveLeadToCloud(newLead);
+
+              // Invio webhook a Zapier per Monday.com solo per i nuovi visitatori
+              if (newLead.stato_checkin === CheckInStatus.NUOVO_LEAD && activeEvent?.academy) {
+                sendLeadToZapier(newLead, activeEvent.academy).catch(console.error);
+              }
             }}
           />
         ) : (

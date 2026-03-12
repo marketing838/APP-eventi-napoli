@@ -74,7 +74,8 @@ export interface Lead {
   orientatore?: string; // Nuova assegnazione manuale
   orientamento_effettuato?: boolean; // Nuovo campo check
   bloccato?: boolean; // Nuovo flag per bloccare la riga (colore lilla)
-  esito_iscrizione?: 'blocco posto' | 'iscritto' | ''; // Nuova colonna
+  emergenza?: boolean; // Flag per segnalare un'urgenza/attenzione particolare (lampeggiante)
+  esito_iscrizione?: 'blocco posto' | 'iscritto' | 'va via prima' | ''; // Nuova colonna con 'va via prima'
   privacy_accettata: boolean; // Flag per accettazione privacy policy
   answers?: Record<string, any>; // Risposte dinamiche extra
 }

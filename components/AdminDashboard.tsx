@@ -116,7 +116,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
           break;
         case 'Da Orientare':
           // LOGICA RICHIESTA: Chiunque abbia un orientatore assegnato MA non abbia ancora finito (senza vincolo di presenza)
-          result = result.filter(l => l.orientatore && l.orientatore !== "" && !l.orientamento_effettuato);
+          result = result.filter(l => l.orientatore && l.orientatore !== "" && !l.orientamento_effettuato && l.esito_iscrizione !== 'va via prima');
           break;
         case 'In Attesa':
           result = result.filter(l => l.stato_checkin === CheckInStatus.NON_PERVENUTO);

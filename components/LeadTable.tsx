@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Lead, CheckInStatus, ORIENTATORI, TemplateSnapshot } from '../types';
 
 interface LeadTableProps {
@@ -17,11 +17,42 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onDelet
     ? templateSnapshot.fields.filter(f => !f.locked && f.visibleInAdminTable !== false)
     : [];
 
-  const filteredLeads = leads.filter(l =>
-    `${l.nome} ${l.cognome}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    l.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    l.cellulare.includes(searchTerm)
-  );
+  const filteredLeads = useMemo(() => {
+    const filtered = leads.filter(l =>
+      `${l.nome} ${l.cognome}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      l.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      l.cellulare.includes(searchTerm)
+    );
+
+    return filtered.sort((a, b) => {
+      // 1. Emergenza non orientata al top
+      const aEmerg = a.emergenza && !a.orientamento_effettuato;
+      const bEmerg = b.emergenza && !b.orientamento_effettuato;
+      if (aEmerg && !bEmerg) return -1;
+      if (!aEmerg && bEmerg) return 1;
+
+      // 2. Va via prima in fondo
+      const aViaPrima = a.esito_iscrizione === 'va via prima';
+      const bViaPrima = b.esito_iscrizione === 'va via prima';
+      if (aViaPrima && !bViaPrima) return 1;
+      if (!aViaPrima && bViaPrima) return -1;
+
+      // 3. Ordine cronologico ascendente (più vecchio prima)
+      const parseDateStr = (dateStr?: string) => {
+        if (!dateStr) return 0;
+        const parts = dateStr.split(', ');
+        if (parts.length !== 2) return 0;
+        const [day, month, year] = parts[0].split('/');
+        const [hh, mm, ss] = parts[1].split(':');
+        return new Date(Number(year), Number(month) - 1, Number(day), Number(hh), Number(mm), Number(ss)).getTime();
+      };
+
+      const timeA = parseDateStr(a.data_checkin);
+      const timeB = parseDateStr(b.data_checkin);
+      
+      return timeA - timeB;
+    });
+  }, [leads, searchTerm]);
 
   const handleToggleBlocca = (lead: Lead) => {
     if (!lead.bloccato) {
@@ -127,10 +158,28 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onDelet
                   rowColorClass = "bg-emerald-50/40 ring-2 ring-emerald-500/20 opacity-80";
                 }
 
+                if (lead.emergenza && !lead.orientamento_effettuato) {
+                  rowColorClass = "animate-pulse bg-red-100 ring-4 ring-red-500 border-red-500 translate-x-1";
+                  textPrimaryClass = "text-red-900";
+                  textSecondaryClass = "text-red-700";
+                  badgeClass = "bg-red-200 text-red-800 border-red-300";
+                }
+
                 return (
                   <tr key={lead.id} style={rowStyle} className={`group ${rowColorClass} shadow-sm border border-gray-100 hover:shadow-2xl transition-all duration-300 rounded-[2rem] overflow-hidden`}>
-                    <td className={`px-6 py-10 text-center font-black ${lead.bloccato ? textSecondaryClass : 'text-gray-300'} text-3xl italic first:rounded-l-[2.5rem]`}>
-                      {index + 1}
+                    <td className={`px-6 py-10 text-center font-black ${lead.bloccato || (lead.emergenza && !lead.orientamento_effettuato) ? textSecondaryClass : 'text-gray-300'} text-3xl italic first:rounded-l-[2.5rem] relative`}>
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <span>{index + 1}</span>
+                        <button
+                          onClick={() => onUpdateLeadField?.(lead.id, 'emergenza', !lead.emergenza)}
+                          className={`p-2 rounded-full transition-all ${lead.emergenza ? 'bg-red-500 text-white shadow-lg ring-2 ring-red-300 animate-bounce' : 'bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-500'}`}
+                          title="Segnala Emergenza"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                     <td className="px-8 py-10">
                       <div className={`font-black uppercase text-2xl tracking-tighter leading-none mb-2 ${lead.bloccato ? textPrimaryClass : 'text-gray-950'}`}>
@@ -238,12 +287,15 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onDelet
                               ? 'bg-emerald-600 text-white border-emerald-500 ring-4 ring-emerald-500/20'
                               : lead.esito_iscrizione === 'blocco posto'
                                 ? 'bg-amber-500 text-white border-amber-400 ring-4 ring-amber-500/20'
-                                : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400'
+                                : lead.esito_iscrizione === 'va via prima'
+                                  ? 'bg-slate-700 text-white border-slate-600 ring-4 ring-slate-700/20'
+                                  : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400'
                             }`}
                         >
                           <option value="">- ESITO -</option>
                           <option value="blocco posto">BLOCCO</option>
                           <option value="iscritto">ISCRITTO</option>
+                          <option value="va via prima">VA VIA PRIMA</option>
                         </select>
                       </div>
                     </td>
