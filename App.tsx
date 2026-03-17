@@ -104,7 +104,17 @@ const App: React.FC = () => {
 
               // Invio webhook a Zapier per Monday.com solo per i nuovi visitatori
               if (newLead.stato_checkin === CheckInStatus.NUOVO_LEAD && activeEvent?.academy) {
-                sendLeadToZapier(newLead, activeEvent.academy).catch(console.error);
+                // Costruzione stringa dataOD: "11 Marzo 2026 - ore 15:30 - Napoli"
+                const MESI_IT = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+                                 'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+                let dataOD = '';
+                if (activeEvent.odDate) {
+                  const [y, m, d] = activeEvent.odDate.split('-');
+                  const mese = MESI_IT[parseInt(m, 10) - 1];
+                  const ora = activeEvent.odTime || '00:00';
+                  dataOD = `${parseInt(d, 10)} ${mese} ${y} - ore ${ora} - Napoli`;
+                }
+                sendLeadToZapier(newLead, activeEvent.academy, dataOD).catch(console.error);
               }
             }}
           />

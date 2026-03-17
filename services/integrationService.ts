@@ -2,7 +2,7 @@ import { Lead } from '../types';
 
 const ZAPIER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/26076162/uxqcqit/';
 
-export const sendLeadToZapier = async (lead: Lead, academy: string) => {
+export const sendLeadToZapier = async (lead: Lead, academy: string, dataOD?: string) => {
   try {
     const academyKey = academy.toLowerCase();
     
@@ -18,7 +18,8 @@ export const sendLeadToZapier = async (lead: Lead, academy: string) => {
       sede: 'Napoli',
       accademia: academyKey.toUpperCase(),
       tipoModulo: 'Check-in App Eventi',
-      sitoUrl: window.location.href
+      sitoUrl: window.location.href,
+      dataOD: dataOD || ''
     };
 
     console.log(`🚀 Sending lead to Zapier [${academyKey}]...`);

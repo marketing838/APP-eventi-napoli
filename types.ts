@@ -51,6 +51,8 @@ export interface EventConfig {
   name: string;
   academy: AcademyType;
   date: string;
+  odDate?: string;   // es. "2026-03-11" — data Open Day (dal date picker)
+  odTime?: string;   // es. "15:30" — ora Open Day (dal time picker)
   templateSnapshot?: TemplateSnapshot;
   templateId?: string;   // riferimento a formTemplates/{templateId}
 }

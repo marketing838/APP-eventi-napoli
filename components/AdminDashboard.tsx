@@ -28,6 +28,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [error, setError] = useState('');
   const [newEventName, setNewEventName] = useState('');
   const [selectedBrand, setSelectedBrand] = useState<AcademyType>('VIS');
+  const [odDate, setOdDate] = useState('');
+  const [odTime, setOdTime] = useState('');
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [orientatoreFilter, setOrientatoreFilter] = useState<string>('');
   const [isImporting, setIsImporting] = useState(false);
@@ -59,9 +61,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
       id: `ev-${Date.now()}`,
       name: newEventName,
       academy: selectedBrand,
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      odDate: odDate || undefined,
+      odTime: odTime || undefined,
     });
     setNewEventName('');
+    setOdDate('');
+    setOdTime('');
   };
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -226,7 +232,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </button>
           </div>
         ) : (
-          <form onSubmit={handleStartSession} className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end">
+          <form onSubmit={handleStartSession} className="grid grid-cols-1 md:grid-cols-5 gap-6 items-end">
             <div className="space-y-3">
               <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-3">Titolo Evento</label>
               <input
@@ -249,8 +255,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <option value="DAM">DAM (Cinema)</option>
               </select>
             </div>
+            <div className="space-y-3">
+              <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-3">📅 Data OD</label>
+              <input
+                type="date"
+                value={odDate}
+                onChange={(e) => setOdDate(e.target.value)}
+                className="w-full px-6 py-5 border-4 border-gray-100 rounded-[1.5rem] focus:border-black outline-none font-bold text-base text-gray-900 bg-gray-50 shadow-inner"
+              />
+            </div>
+            <div className="space-y-3">
+              <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-3">🕐 Ora OD</label>
+              <input
+                type="time"
+                value={odTime}
+                onChange={(e) => setOdTime(e.target.value)}
+                className="w-full px-6 py-5 border-4 border-gray-100 rounded-[1.5rem] focus:border-black outline-none font-bold text-base text-gray-900 bg-gray-50 shadow-inner"
+              />
+            </div>
             <button type="submit" className="bg-black text-white py-6 px-10 rounded-[1.5rem] font-black shadow-2xl hover:bg-zinc-800 transition-all uppercase tracking-tighter text-xl border-b-8 border-zinc-900">
-              Crea Nuova Sessione
+              Crea Sessione
             </button>
           </form>
         )}
