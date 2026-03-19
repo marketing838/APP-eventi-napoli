@@ -32,7 +32,9 @@ export const sendLeadToZapier = async (lead: Lead, academy: string, dataOD?: str
     });
 
     console.log(`✅ Lead sent to Zapier!`);
+    return true;
   } catch (error) {
     console.error('❌ Failed to send lead to Zapier:', error);
+    return false;
   }
 };

@@ -121,7 +121,14 @@ const App: React.FC = () => {
                   const ora = activeEvent.odTime || '00:00';
                   dataOD = `${parseInt(d, 10)} ${mese} ${y} - ore ${ora} - Napoli`;
                 }
-                sendLeadToZapier(newLead, activeEvent.academy, dataOD).catch(console.error);
+                sendLeadToZapier(newLead, activeEvent.academy, dataOD)
+                  .then((success) => {
+                    if (success) {
+                      // Segna come inviato su Cloud
+                      storage.updateLeadSyncedStatus(activeEvent.id, newLead.id, true).catch(console.error);
+                    }
+                  })
+                  .catch(console.error);
               }
             }}
           />

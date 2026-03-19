@@ -29,22 +29,17 @@ const UserCheckin: React.FC<UserCheckinProps> = ({ activeEvent, leads, onCheckIn
     setMessage(null);
 
     try {
-      const isEmail = term.includes('@');
       const normSearch = term.replace(/\D/g, ''); // solo cifre
       const cleanSearchForm = normSearch.startsWith('39') && normSearch.length > 10 ? normSearch.substring(2) : normSearch;
 
       // ── Step 1: Ricerca LOCALE (array leads in memoria, aggiornato dallo snapshot) ──
       // Usiamo match esatto ignorando prefissi come +39 per evitare falsi positivi
       let lead: Lead | null = leads.find(l => {
-        if (isEmail) return (l.email || '').toLowerCase() === term.toLowerCase();
         if (!cleanSearchForm) return false;
-
         const dbPhone1 = (l.cellulare_search || '').replace(/\D/g, '');
         const cleanDb1 = dbPhone1.startsWith('39') && dbPhone1.length > 10 ? dbPhone1.substring(2) : dbPhone1;
-
         const dbPhone2 = (l.cellulare || '').replace(/\D/g, '');
         const cleanDb2 = dbPhone2.startsWith('39') && dbPhone2.length > 10 ? dbPhone2.substring(2) : dbPhone2;
-
         return cleanSearchForm === cleanDb1 || cleanSearchForm === cleanDb2;
       }) || null;
 
@@ -53,8 +48,8 @@ const UserCheckin: React.FC<UserCheckinProps> = ({ activeEvent, leads, onCheckIn
       if (!lead && activeEvent?.id && import.meta.env.VITE_STORAGE_PROVIDER !== 'legacy') {
         lead = await findLeadByEmailOrPhone(
           activeEvent.id,
-          isEmail ? term.toLowerCase() : undefined,
-          isEmail ? undefined : normSearch
+          undefined,
+          normSearch
         );
         if (lead) console.log('☁️ Lead trovato su Firestore (multi-device)');
       }
@@ -130,7 +125,7 @@ const UserCheckin: React.FC<UserCheckinProps> = ({ activeEvent, leads, onCheckIn
 
           <form onSubmit={handleSearch} className="p-10 space-y-6">
             <div className="space-y-3">
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Inserisci Email o Cellulare</label>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Inserisci Cellulare</label>
               <div className="relative group">
                 <input
                   type="text"

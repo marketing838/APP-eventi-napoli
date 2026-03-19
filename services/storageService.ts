@@ -387,7 +387,7 @@ export const disableLeadsSync = (): void => {
  */
 export const findLeadByEmailOrPhone = async (
   eventId: string,
-  email?: string,
+  _email?: string, // Parametro ignorato per match solo cellulare
   phone?: string  // deve essere già normalizzato (solo cifre) dal chiamante
 ): Promise<Lead | null> => {
   const normSearch = phone || '';
@@ -396,7 +396,6 @@ export const findLeadByEmailOrPhone = async (
   if (PROVIDER === 'legacy') {
     const local = getLeads();
     return local.find(l => {
-      if (email && l.email?.toLowerCase() === email.toLowerCase()) return true;
       if (!cleanSearchForm) return false;
       const dbPhone1 = (l.cellulare_search || '').replace(/\D/g, '');
       const cleanDb1 = dbPhone1.startsWith('39') && dbPhone1.length > 10 ? dbPhone1.substring(2) : dbPhone1;
@@ -416,14 +415,6 @@ export const findLeadByEmailOrPhone = async (
     } = await import('firebase/firestore');
     const leadsCol = fsCollection(db, 'events', eventId, 'leads');
 
-    // — Ricerca per email (esatta, con indice) —
-    if (email) {
-      const q = fsQuery(leadsCol, where('email', '==', email.toLowerCase()));
-      const snap = await fsGetDocs(q);
-      if (!snap.empty) return snap.docs[0].data() as Lead;
-    }
-
-    // — Ricerca per telefono —
     if (cleanSearchForm) {
       // Query 1: campo normalizzato (cerchiamo con e senza il 39 iniziale tramite 'in')
       const q1 = fsQuery(leadsCol, where('cellulare_search', 'in', [cleanSearchForm, `39${cleanSearchForm}`]));
@@ -456,7 +447,6 @@ export const findLeadByEmailOrPhone = async (
     // Fallback finale: localStorage (lead non ancora sincronizzati su Firestore)
     const local = getLeads();
     const localMatch = local.find(l => {
-      if (email && l.email?.toLowerCase() === email.toLowerCase()) return true;
       if (!cleanSearchForm) return false;
       const dbPhone1 = (l.cellulare_search || '').replace(/\D/g, '');
       const cleanDb1 = dbPhone1.startsWith('39') && dbPhone1.length > 10 ? dbPhone1.substring(2) : dbPhone1;
@@ -474,7 +464,6 @@ export const findLeadByEmailOrPhone = async (
     console.warn('⚠️ findLeadByEmailOrPhone Firestore fallito, fallback locale:', e);
     const local = getLeads();
     return local.find(l => {
-      if (email && l.email?.toLowerCase() === email.toLowerCase()) return true;
       if (!cleanSearchForm) return false;
       const dbPhone1 = (l.cellulare_search || '').replace(/\D/g, '');
       const cleanDb1 = dbPhone1.startsWith('39') && dbPhone1.length > 10 ? dbPhone1.substring(2) : dbPhone1;
@@ -482,6 +471,21 @@ export const findLeadByEmailOrPhone = async (
       const cleanDb2 = dbPhone2.startsWith('39') && dbPhone2.length > 10 ? dbPhone2.substring(2) : dbPhone2;
       return cleanSearchForm === cleanDb1 || cleanSearchForm === cleanDb2;
     }) || null;
+  }
+};
+
+/**
+ * Aggiorna lo stato di sincronizzazione Zapier di un lead su Firestore.
+ */
+export const updateLeadSyncedStatus = async (eventId: string, leadId: string, synced: boolean) => {
+  if (PROVIDER === 'legacy') return;
+  try {
+    const { doc: fsDoc, updateDoc: fsUpdateDoc } = await import('firebase/firestore');
+    const leadRef = fsDoc(db, 'events', eventId, 'leads', leadId);
+    await fsUpdateDoc(leadRef, { zapier_synced: synced });
+    console.log(`📡 Lead ${leadId} zapier_synced set to ${synced}`);
+  } catch (e) {
+    console.error('❌ updateLeadSyncedStatus fallito:', e);
   }
 };
 
@@ -670,8 +674,8 @@ const escapeCSV = (val: string): string => {
 };
 
 export const generateCSV = (leads: Lead[], templateSnapshot?: TemplateSnapshot): string => {
-  // Colonne base (invariate) + nuova intestazione Tipo Leads all'inizio
-  const baseHeaders = ['Tipo Leads', 'Nome', 'Cognome', 'Corso di Interesse', 'Telefono', 'E-mail', 'Fonte', 'Accompagnatore', 'Orientatore', 'Orientamento Fatto', 'Esito Iscrizione', 'Bloccato', 'Privacy Accettata', 'Stato Check-in', 'Data'];
+  // Colonne base (invariate) + nuova intestazione Tipo Leads e Invio Zapier all'inizio
+  const baseHeaders = ['Tipo Leads', 'Invio Zapier', 'Nome', 'Cognome', 'Corso di Interesse', 'Telefono', 'E-mail', 'Fonte', 'Accompagnatore', 'Orientatore', 'Orientamento Fatto', 'Esito Iscrizione', 'Bloccato', 'Privacy Accettata', 'Stato Check-in', 'Data'];
 
   // Colonne dinamiche (solo se snapshot presente)
   const dynamicFields = templateSnapshot
@@ -696,8 +700,11 @@ export const generateCSV = (leads: Lead[], templateSnapshot?: TemplateSnapshot):
       tipoLeads = 'Pre-Iscritto (In Attesa)';
     }
 
+    const zapierStatus = l.zapier_synced ? 'Inviato' : 'Non Inviato';
+
     return [
       tipoLeads,
+      zapierStatus,
       l.nome,
       l.cognome,
       l.dipartimento_interesse || l.corso_di_interesse || '',

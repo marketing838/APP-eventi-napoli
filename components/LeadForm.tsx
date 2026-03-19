@@ -43,7 +43,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialData, onSave, theme = 'indig
     if (!formData.nome.trim()) newErrors.nome = 'Obbligatorio';
     if (!formData.cognome.trim()) newErrors.cognome = 'Obbligatorio';
     if (!formData.cellulare.trim()) newErrors.cellulare = 'Obbligatorio';
-    if (!formData.email.trim()) newErrors.email = 'Obbligatorio';
+    // Email non più obbligatoria
     if (!formData.eta.trim()) newErrors.eta = 'Obbligatorio';
     if (!formData.come_ci_hai_conosciuto) newErrors.come_ci_hai_conosciuto = 'Seleziona un\'opzione';
     if (!formData.accompagnatore) newErrors.accompagnatore = 'Seleziona un\'opzione';
@@ -144,10 +144,8 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialData, onSave, theme = 'indig
           <input type="tel" value={formData.cellulare} onChange={(e) => setFormData({ ...formData, cellulare: e.target.value })} className={inputClasses(errors.cellulare)} placeholder="+39 ..." />
           {errors.cellulare && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 italic">{errors.cellulare}</p>}
         </div>
-        <div>
-          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">E-mail</label>
-          <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className={inputClasses(errors.email)} placeholder="mario@esempio.it" />
-          {errors.email && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 italic">{errors.email}</p>}
+        <div className="hidden">
+           {/* Email nascosta per richiesta utente */}
         </div>
       </div>
 
