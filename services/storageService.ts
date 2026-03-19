@@ -670,37 +670,56 @@ const escapeCSV = (val: string): string => {
 };
 
 export const generateCSV = (leads: Lead[], templateSnapshot?: TemplateSnapshot): string => {
-  // Colonne base (invariate)
-  const baseHeaders = ['Nome', 'Cognome', 'Corso di Interesse', 'Telefono', 'E-mail', 'Fonte', 'Accompagnatore', 'Orientatore', 'Orientamento Fatto', 'Esito Iscrizione', 'Bloccato', 'Privacy Accettata', 'Stato Check-in', 'Data'];
+  // Colonne base (invariate) + nuova intestazione Tipo Leads all'inizio
+  const baseHeaders = ['Tipo Leads', 'Nome', 'Cognome', 'Corso di Interesse', 'Telefono', 'E-mail', 'Fonte', 'Accompagnatore', 'Orientatore', 'Orientamento Fatto', 'Esito Iscrizione', 'Bloccato', 'Privacy Accettata', 'Stato Check-in', 'Data'];
 
   // Colonne dinamiche (solo se snapshot presente)
   const dynamicFields = templateSnapshot
     ? templateSnapshot.fields.filter(f => !f.locked && f.visibleInAdminTable !== false)
     : [];
 
-  const headers = [...baseHeaders, ...dynamicFields.map(f => f.label)];
+  const headers = [...baseHeaders, ...dynamicFields.map(f => f.label), 'Webhook Napoli'];
 
-  const rows = leads.map(l => [
-    l.nome,
-    l.cognome,
-    l.dipartimento_interesse || l.corso_di_interesse || '',
-    l.cellulare,
-    l.email,
-    l.come_ci_hai_conosciuto || '',
-    l.accompagnatore || 'Nessuno',
-    l.orientatore || 'Non Assegnato',
-    l.orientamento_effettuato ? 'SI' : 'NO',
-    l.esito_iscrizione ? l.esito_iscrizione.toUpperCase() : '',
-    l.bloccato ? 'SI' : 'NO',
-    l.privacy_accettata ? 'SI' : 'NO',
-    l.stato_checkin,
-    l.data_checkin || '',
-    // Valori dinamici
-    ...dynamicFields.map(f => {
-      const val = l.answers?.[f.key] ?? '';
-      return typeof val === 'boolean' ? (val ? 'SI' : 'NO') : String(val);
-    }),
-  ].map(v => escapeCSV(String(v))));
+  const rows = leads.map(l => {
+    let tipoLeads = 'Nuovo Leads';
+    if (l.stato_checkin === CheckInStatus.AGGIORNATO || l.stato_checkin === CheckInStatus.CONFERMATO) {
+      if (l.campi_modificati && l.campi_modificati !== 'nessuno') {
+        if (l.campi_modificati.includes('modificato campo')) {
+          tipoLeads = `Leads Aggiornato: ${l.campi_modificati}`;
+        } else {
+          tipoLeads = `Leads Aggiornato: campi modificati: ${l.campi_modificati}`;
+        }
+      } else {
+        tipoLeads = 'Leads Già Presente (nessuna modifica)';
+      }
+    } else if (l.stato_checkin === CheckInStatus.NON_PERVENUTO) {
+      tipoLeads = 'Pre-Iscritto (In Attesa)';
+    }
+
+    return [
+      tipoLeads,
+      l.nome,
+      l.cognome,
+      l.dipartimento_interesse || l.corso_di_interesse || '',
+      l.cellulare,
+      l.email,
+      l.come_ci_hai_conosciuto || '',
+      l.accompagnatore || 'Nessuno',
+      l.orientatore || 'Non Assegnato',
+      l.orientamento_effettuato ? 'SI' : 'NO',
+      l.esito_iscrizione ? l.esito_iscrizione.toUpperCase() : '',
+      l.bloccato ? 'SI' : 'NO',
+      l.privacy_accettata ? 'SI' : 'NO',
+      l.stato_checkin,
+      l.data_checkin || '',
+      // Valori dinamici
+      ...dynamicFields.map(f => {
+        const val = l.answers?.[f.key] ?? '';
+        return typeof val === 'boolean' ? (val ? 'SI' : 'NO') : String(val);
+      }),
+      l.zapier_synced ? 'INVIATO' : 'DA INVIARE'
+    ].map(v => escapeCSV(String(v)));
+  });
 
   return [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
 };

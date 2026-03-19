@@ -71,12 +71,21 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialData, onSave, theme = 'indig
     if (initialData) {
       const fields = ['nome', 'cognome', 'email', 'cellulare', 'eta', 'come_ci_hai_conosciuto', 'dipartimento_interesse', 'accompagnatore', 'privacy_accettata'] as const;
       fields.forEach(field => {
-        if (formData[field] !== (initialData as any)[field]) modifiedFields.push(field);
+        if (formData[field] !== (initialData as any)[field]) {
+          const oldVal = (initialData as any)[field] || 'vuoto';
+          const newVal = formData[field] || 'vuoto';
+          modifiedFields.push(`modificato campo ${field} da '${oldVal}' a '${newVal}'`);
+        }
       });
-      // Fix: verifica anche cambiamenti nei campi dinamici (answers)
-      if (JSON.stringify(answers) !== JSON.stringify(initialData.answers ?? {})) {
-        modifiedFields.push('risposte_extra');
-      }
+      // Verifica cambiamenti nei campi dinamici
+      const oldAnswers = initialData.answers ?? {};
+      dynamicFields.forEach(f => {
+        const oldVal = oldAnswers[f.key];
+        const newVal = answers[f.key];
+        if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
+          modifiedFields.push(`modificato campo ${f.label || f.key} da '${oldVal || 'vuoto'}' a '${newVal || 'vuoto'}'`);
+        }
+      });
       updatedStatus = modifiedFields.length > 0 ? CheckInStatus.AGGIORNATO : CheckInStatus.CONFERMATO;
     }
 
