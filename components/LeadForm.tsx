@@ -47,7 +47,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialData, onSave, theme = 'indig
     if (!formData.eta.trim()) newErrors.eta = 'Obbligatorio';
     if (!formData.come_ci_hai_conosciuto) newErrors.come_ci_hai_conosciuto = 'Seleziona un\'opzione';
     if (!formData.accompagnatore) newErrors.accompagnatore = 'Seleziona un\'opzione';
-    if (academy !== 'GENERAL' && !formData.dipartimento_interesse) newErrors.dipartimento_interesse = 'Seleziona un corso';
+    if (academy !== 'GENERAL' && courses.length > 0 && !formData.dipartimento_interesse) newErrors.dipartimento_interesse = 'Seleziona un corso';
     if (!formData.privacy_accettata) newErrors.privacy_accettata = 'Necessario accettare la privacy';
     // Validazione campi dinamici extra
     dynamicFields.forEach(f => {
@@ -110,7 +110,9 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialData, onSave, theme = 'indig
     { id: 'amico', label: 'Con un amico', icon: '👫' },
   ];
 
-  const courses = ACADEMY_COURSES[academy] || [];
+  // CERCHIAMO OPZIONI DI CORSO DAL TEMPLATE CUSTOM, se disponibile
+  const dipartimentoField = templateSnapshot?.fields.find(f => f.key === 'dipartimento_interesse');
+  const courses = dipartimentoField?.options || ACADEMY_COURSES[academy] || [];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -161,7 +163,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialData, onSave, theme = 'indig
         </div>
       </div>
 
-      {academy !== 'GENERAL' && (
+      {academy !== 'GENERAL' && courses.length > 0 && (
         <div className="bg-gray-50 p-6 rounded-[2rem] border-2 border-gray-100">
           <label className={`text-[10px] font-black text-${theme} uppercase tracking-widest ml-1 block mb-3`}>Dipartimento / Corso di Interesse</label>
           <div className="grid grid-cols-1 gap-2">

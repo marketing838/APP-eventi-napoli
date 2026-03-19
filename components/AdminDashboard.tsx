@@ -416,9 +416,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </button>
           <button
             onClick={() => setShowDiagnostics(s => !s)}
-            className={`px-8 py-5 rounded-[1.5rem] font-black uppercase text-xs transition-all shadow-sm border-4 ${showDiagnostics ? 'bg-indigo-600 text-white border-indigo-500' : 'bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100'}`}
+            className="w-10 h-10 flex items-center justify-center rounded-full opacity-10 hover:opacity-100 transition-opacity bg-gray-100 ml-4 focus:outline-none"
+            title="Diagnostica"
           >
-            🔬 Diagnostica
+            🔬
           </button>
           {activeEvent && (
             <button

@@ -11,7 +11,15 @@ const App: React.FC = () => {
   const [view, setView] = useState<ViewType>('USER');
   const [leads, setLeads] = useState<Lead[]>(() => storage.getLeads());
   const [activeEvent, setActiveEvent] = useState<EventConfig | null>(() => storage.getActiveEvent());
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
+    return sessionStorage.getItem('adminAuth') === 'true';
+  });
+
+  const handleAdminAuth = useCallback((status: boolean) => {
+    setIsAdminAuthenticated(status);
+    if (status) sessionStorage.setItem('adminAuth', 'true');
+    else sessionStorage.removeItem('adminAuth');
+  }, []);
 
   const handleUpdateLeads = useCallback((newList: Lead[]) => {
     setLeads([...newList]);
@@ -55,15 +63,14 @@ const App: React.FC = () => {
 
   // FUNZIONE DI RESET DEFINITIVA
   const handleHardReset = useCallback(async () => {
-    await storage.setActiveEvent(null); // async: aspetta Firestore prima del reload
     await storage.clearLeads();
-    window.location.reload();
+    setLeads([]);
   }, []);
 
   // FUNZIONE DI CHIUSURA SESSIONE DEFINITIVA
   const handleStopSession = useCallback(async () => {
-    await storage.setActiveEvent(null); // async: aspetta Firestore prima del reload
-    window.location.reload();
+    await storage.setActiveEvent(null);
+    setActiveEvent(null);
   }, []);
 
   // FORCE EXIT: emergenza — pulisce solo localStorage, zero chiamate Firebase
@@ -75,7 +82,7 @@ const App: React.FC = () => {
   }, []);
 
   const handleAdminLogout = () => {
-    setIsAdminAuthenticated(false);
+    handleAdminAuth(false);
     setView('USER');
   };
 
@@ -128,7 +135,7 @@ const App: React.FC = () => {
             onStopSession={handleStopSession}
             onForceExit={handleForceExit}
             isAuthenticated={isAdminAuthenticated}
-            setIsAuthenticated={setIsAdminAuthenticated}
+            setIsAuthenticated={handleAdminAuth}
           />
         )}
       </main>

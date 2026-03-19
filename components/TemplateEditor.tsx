@@ -36,13 +36,14 @@ function uniqueKey(baseKey: string, existingKeys: string[]): string {
     return `${baseKey}_${i}`;
 }
 
-function validateTemplate(tpl: FormTemplate): string[] {
+function validateTemplate(tpl: FormTemplate, initialTpl: FormTemplate): string[] {
     const errors: string[] = [];
+    const originalKeys = new Set(initialTpl.fields.map(f => f.key));
     if (!tpl.name.trim()) errors.push('Nome template obbligatorio');
     const keys = tpl.fields.map(f => f.key);
     if (new Set(keys).size !== keys.length) errors.push('Chiavi campo duplicate');
     tpl.fields.forEach(f => {
-        if (!f.locked && RESERVED_KEYS.has(f.key)) errors.push(`Chiave riservata: "${f.key}"`);
+        if (!f.locked && RESERVED_KEYS.has(f.key) && !originalKeys.has(f.key)) errors.push(`Chiave riservata non inseribile: "${f.key}"`);
         if (!f.label.trim()) errors.push(`Campo senza label (key: ${f.key})`);
         if (f.type === 'select' && (!f.options || f.options.length === 0))
             errors.push(`Il campo select "${f.label}" deve avere almeno 1 opzione`);
@@ -203,7 +204,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template: initialTempla
     };
 
     const handleSave = async () => {
-        const validationErrors = validateTemplate(tpl);
+        const validationErrors = validateTemplate(tpl, initialTemplate);
         if (validationErrors.length > 0) {
             setErrors(validationErrors);
             return;

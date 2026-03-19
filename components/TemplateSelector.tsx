@@ -116,7 +116,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ activeEvent, onEven
     };
 
     // ── Salvataggio dall'editor ──────────────────────────────────────────────
-    const handleEditorSave = (saved: FormTemplate) => {
+    const handleEditorSave = async (saved: FormTemplate) => {
         setTemplates(prev => {
             const idx = prev.findIndex(t => t.id === saved.id);
             if (idx === -1) return [...prev, saved];
@@ -125,7 +125,20 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ activeEvent, onEven
             return next;
         });
         setEditingTemplate(null);
-        setStatus({ type: 'success', msg: `Template "${saved.name}" salvato.` });
+
+        if (saved.id === activeEvent.templateId) {
+            try {
+                const updated = await applyTemplateToEvent(activeEvent, saved, true);
+                if (updated) {
+                    onEventUpdated(updated);
+                    setStatus({ type: 'success', msg: `Template "${saved.name}" salvato e applicato all'evento attuale.` });
+                }
+            } catch {
+                setStatus({ type: 'warning', msg: `Template salvato, ma errore nell'aggiornamento automatico dell'evento.` });
+            }
+        } else {
+            setStatus({ type: 'success', msg: `Template "${saved.name}" salvato.` });
+        }
     };
 
     const activeTemplateId = activeEvent.templateId;
