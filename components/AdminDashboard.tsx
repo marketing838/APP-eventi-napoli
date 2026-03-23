@@ -203,20 +203,41 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // Fix 4: updateDoc atomico — aggiorna SOLO il campo modificato
   // Evita sovrascritture ottimistiche tra 3 Admin simultanei che aggiornano campi diversi
   const handleUpdateLeadField = async (leadId: string, field: keyof Lead, value: any) => {
-    const updatedLead = leads.find(l => l.id === leadId);
-    if (!updatedLead) return;
+    const leadA = leads.find(l => l.id === leadId);
+    if (!leadA) return;
+
+    // Campi da sincronizzare se presente un partner (escluso esito_iscrizione come richiesto)
+    const syncFields: (keyof Lead)[] = ['orientatore', 'orientamento_effettuato', 'bloccato', 'emergenza'];
+    const partnerId = leadA.accompagnato_da_id;
+    const shouldSync = syncFields.includes(field) && partnerId;
+
     // Aggiornamento locale immediato per feedback UI
-    const updated = leads.map(l => l.id === leadId ? { ...l, [field]: value } : l);
-    onUpdateLeads(updated);
-    // Scrittura Firestore atomica: solo il singolo campo + timestamp
+    const updatedLeads = leads.map(l => {
+      if (l.id === leadId || (shouldSync && l.id === partnerId)) {
+        return { ...l, [field]: value };
+      }
+      return l;
+    });
+    onUpdateLeads(updatedLeads);
+
+    // Scrittura Firestore
     if (activeEvent?.id) {
       try {
-        const leadRef = doc(db, 'events', activeEvent.id, 'leads', leadId);
-        await updateDoc(leadRef, { [field]: value, updatedAtMs: Date.now() });
+        if (shouldSync && partnerId) {
+          // Scrittura atomica per entrambi i lead
+          const batch = writeBatch(db);
+          batch.update(doc(db, 'events', activeEvent.id, 'leads', leadId), { [field]: value, updatedAtMs: Date.now() });
+          batch.update(doc(db, 'events', activeEvent.id, 'leads', partnerId), { [field]: value, updatedAtMs: Date.now() });
+          await batch.commit();
+        } else {
+          // Scrittura singola standard
+          const leadRef = doc(db, 'events', activeEvent.id, 'leads', leadId);
+          await updateDoc(leadRef, { [field]: value, updatedAtMs: Date.now() });
+        }
       } catch (e) {
-        console.warn('⚠️ updateDoc fallito per campo', field, e);
-        // Fallback: salva intero oggetto con merge
-        try { await saveLeadToCloud({ ...updatedLead, [field]: value }); } catch { }
+        console.warn('⚠️ Update fallito per campo', field, e);
+        // Fallback: se batch fallisce o non siamo in batch, prova il salvataggio standard sul lead principale
+        try { await saveLeadToCloud({ ...leadA, [field]: value }); } catch { }
       }
     }
   };
