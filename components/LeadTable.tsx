@@ -19,12 +19,28 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onLinkL
     ? templateSnapshot.fields.filter(f => !f.locked && f.visibleInAdminTable !== false)
     : [];
 
+  // Mappa per lookup veloce dei lead (usata nel sorting)
+  const leadMap = useMemo(() => {
+    const map = new Map<string, Lead>();
+    leads.forEach(l => map.set(l.id, l));
+    return map;
+  }, [leads]);
+
   const filteredLeads = useMemo(() => {
     const filtered = leads.filter(l =>
       `${l.nome} ${l.cognome}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       l.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       l.cellulare.includes(searchTerm)
     );
+
+    const parseDateStr = (dateStr?: string) => {
+      if (!dateStr) return 0;
+      const parts = dateStr.split(', ');
+      if (parts.length !== 2) return 0;
+      const [day, month, year] = parts[0].split('/');
+      const [hh, mm, ss] = parts[1].split(':');
+      return new Date(Number(year), Number(month) - 1, Number(day), Number(hh), Number(mm), Number(ss)).getTime();
+    };
 
     return filtered.sort((a, b) => {
       // 1. Emergenza non orientata al top
@@ -39,22 +55,26 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onLinkL
       if (aViaPrima && !bViaPrima) return 1;
       if (!aViaPrima && bViaPrima) return -1;
 
-      // 3. Ordine cronologico ascendente (più vecchio prima)
-      const parseDateStr = (dateStr?: string) => {
-        if (!dateStr) return 0;
-        const parts = dateStr.split(', ');
-        if (parts.length !== 2) return 0;
-        const [day, month, year] = parts[0].split('/');
-        const [hh, mm, ss] = parts[1].split(':');
-        return new Date(Number(year), Number(month) - 1, Number(day), Number(hh), Number(mm), Number(ss)).getTime();
-      };
-
-      const timeA = parseDateStr(a.data_checkin);
-      const timeB = parseDateStr(b.data_checkin);
+      // 3. Ordine cronologico con raggruppamento (Coppie vicine)
+      const getGroupId = (l: Lead) => (l.accompagnato_da_id && l.accompagnato_da_id < l.id) ? l.accompagnato_da_id : l.id;
       
-      return timeA - timeB;
+      const gidA = getGroupId(a);
+      const gidB = getGroupId(b);
+
+      if (gidA !== gidB) {
+        // Gruppi diversi: ordina per l'orario del "capogruppo"
+        const repA = leadMap.get(gidA) || a;
+        const repB = leadMap.get(gidB) || b;
+        const timeA = parseDateStr(repA.data_checkin);
+        const timeB = parseDateStr(repB.data_checkin);
+        if (timeA !== timeB) return timeA - timeB;
+        return gidA < gidB ? -1 : 1; // Stabilità
+      }
+
+      // Stesso gruppo: ordina internamente per data individuale
+      return parseDateStr(a.data_checkin) - parseDateStr(b.data_checkin);
     });
-  }, [leads, searchTerm]);
+  }, [leads, searchTerm, leadMap]);
 
   const handleToggleBlocca = (lead: Lead) => {
     if (!lead.bloccato) {
