@@ -80,6 +80,7 @@ export interface Lead {
   esito_iscrizione?: 'blocco posto' | 'iscritto' | 'va via prima' | ''; // Nuova colonna con 'va via prima'
   privacy_accettata: boolean; // Flag per accettazione privacy policy
   answers?: Record<string, any>; // Risposte dinamiche extra
+  accompagnato_da_id?: string; // ID del partner collegato
   zapier_synced?: boolean; // Tracking sincronizzazione Zapier
 }
 

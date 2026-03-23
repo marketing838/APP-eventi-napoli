@@ -21,17 +21,19 @@ const StatsCards: React.FC<StatsCardsProps> = ({ leads, activeFilter, onFilterCh
   ).length;
   
   const pending = leads.filter(l => l.stato_checkin === CheckInStatus.NON_PERVENUTO).length;
+  const inGroup = leads.filter(l => l.accompagnato_da_id && l.accompagnato_da_id !== "").length;
 
   const cards = [
     { label: 'Totale Leads', value: total, color: 'bg-indigo-600', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
     { label: 'Aggiornati', value: anyCheckin, color: 'bg-blue-600', icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' },
     { label: 'Orientamento Fatto', value: orientationDone, color: 'bg-green-600', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
     { label: 'Da Orientare', value: orientationTodo, color: 'bg-rose-600', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 17c-.77 1.333.192 3 1.732 3z' },
+    { label: 'In Gruppo', value: inGroup, color: 'bg-amber-500', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
     { label: 'In Attesa', value: pending, color: 'bg-gray-500', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
       {cards.map((card, i) => {
         const isActive = activeFilter === card.label;
         return (

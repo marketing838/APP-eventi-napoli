@@ -6,7 +6,7 @@ import LeadTable from './LeadTable';
 import DiagnosticsPanel from './DiagnosticsPanel';
 import TemplateSelector from './TemplateSelector';
 import { parseCSV, generateCSV, syncLeadsNow, syncLeadsToCloud, deleteLeadFromCloud, saveLeadToCloud, loadPastEvents, downloadEventCSV, deleteEventFromCloud } from '../services/storageService';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../services/firebase';
 
 interface AdminDashboardProps {
@@ -132,6 +132,73 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
     return result;
   }, [leads, activeFilter, orientatoreFilter]);
+
+  // Handshake Logic: Collega/Scollega due lead in modo bidirezionale e atomico
+  const handleLinkLeads = async (leadId: string, partnerId: string | null) => {
+    const lead = leads.find(l => l.id === leadId);
+    if (!lead) return;
+
+    const batch = writeBatch(db);
+    const eventId = activeEvent?.id;
+    if (!eventId) return;
+
+    let updatedLeads = [...leads];
+
+    // Caso 1: SCOLLEGAMENTO (partnerId === null)
+    if (!partnerId) {
+      const oldPartnerId = lead.accompagnato_da_id;
+      if (!oldPartnerId) return;
+
+      // Update Lead A
+      const leadRef = doc(db, 'events', eventId, 'leads', leadId);
+      batch.update(leadRef, { accompagnato_da_id: null, updatedAtMs: Date.now() });
+      updatedLeads = updatedLeads.map(l => l.id === leadId ? { ...l, accompagnato_da_id: undefined } : l);
+
+      // Update Lead B (ex partner)
+      const partnerRef = doc(db, 'events', eventId, 'leads', oldPartnerId);
+      batch.update(partnerRef, { accompagnato_da_id: null, updatedAtMs: Date.now() });
+      updatedLeads = updatedLeads.map(l => l.id === oldPartnerId ? { ...l, accompagnato_da_id: undefined } : l);
+    } 
+    // Caso 2: COLLEGAMENTO (partnerId impostato)
+    else {
+      const newPartner = leads.find(l => l.id === partnerId);
+      if (!newPartner) return;
+
+      // 1. Pulizia eventuali link precedenti di A
+      if (lead.accompagnato_da_id) {
+        const oldRef = doc(db, 'events', eventId, 'leads', lead.accompagnato_da_id);
+        batch.update(oldRef, { accompagnato_da_id: null, updatedAtMs: Date.now() });
+        updatedLeads = updatedLeads.map(l => l.id === lead.accompagnato_da_id ? { ...l, accompagnato_da_id: undefined } : l);
+      }
+      // 2. Pulizia eventuali link precedenti di B
+      if (newPartner.accompagnato_da_id) {
+        const oldRef = doc(db, 'events', eventId, 'leads', newPartner.accompagnato_da_id);
+        batch.update(oldRef, { accompagnato_da_id: null, updatedAtMs: Date.now() });
+        updatedLeads = updatedLeads.map(l => l.id === newPartner.accompagnato_da_id ? { ...l, accompagnato_da_id: undefined } : l);
+      }
+
+      // 3. Handshake A <-> B
+      const leadRef = doc(db, 'events', eventId, 'leads', leadId);
+      const partnerRef = doc(db, 'events', eventId, 'leads', partnerId);
+      
+      batch.update(leadRef, { accompagnato_da_id: partnerId, updatedAtMs: Date.now() });
+      batch.update(partnerRef, { accompagnato_da_id: leadId, updatedAtMs: Date.now() });
+
+      updatedLeads = updatedLeads.map(l => {
+        if (l.id === leadId) return { ...l, accompagnato_da_id: partnerId };
+        if (l.id === partnerId) return { ...l, accompagnato_da_id: leadId };
+        return l;
+      });
+    }
+
+    try {
+      await batch.commit();
+      onUpdateLeads(updatedLeads);
+    } catch (e) {
+      console.error("Batch link update failed:", e);
+      alert("Errore durante il collegamento dei partner.");
+    }
+  };
 
   // Fix 4: updateDoc atomico — aggiorna SOLO il campo modificato
   // Evita sovrascritture ottimistiche tra 3 Admin simultanei che aggiornano campi diversi
@@ -463,6 +530,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <LeadTable
           leads={filteredLeads}
           onUpdateLeadField={handleUpdateLeadField}
+          onLinkLeads={handleLinkLeads}
           onDeleteLead={handleDeleteLead}
           templateSnapshot={activeEvent?.templateSnapshot}
         />

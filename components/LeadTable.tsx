@@ -5,12 +5,14 @@ import { Lead, CheckInStatus, ORIENTATORI, TemplateSnapshot } from '../types';
 interface LeadTableProps {
   leads: Lead[];
   onUpdateLeadField?: (id: string, field: keyof Lead, value: any) => void;
+  onLinkLeads?: (leadId: string, partnerId: string | null) => void;
   onDeleteLead?: (id: string) => void;
   templateSnapshot?: TemplateSnapshot; // PHASE 2: colonne dinamiche
 }
 
-const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onDeleteLead, templateSnapshot }) => {
+const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onLinkLeads, onDeleteLead, templateSnapshot }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [partnerSearch, setPartnerSearch] = useState<{ [key: string]: string }>({});
 
   // PHASE 2: campi dinamici visibili nella tabella (non bloccati, visibleInAdminTable !== false)
   const dynamicFields = templateSnapshot
@@ -102,6 +104,7 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onDelet
               <th className="px-6 py-4 text-center">N°</th>
               <th className="px-8 py-4">Informazioni Lead</th>
               <th className="px-8 py-4">Corso</th>
+              <th className="px-8 py-4 text-center whitespace-nowrap">Insieme a</th>
               <th className="px-8 py-4 text-center">Accompagnatore</th>
               <th className="px-8 py-4 text-center">Presenza</th>
               <th className="px-8 py-4">Orientatore</th>
@@ -133,11 +136,11 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onDelet
                 let oBorderClass = '';
 
                 switch (oInfo) {
-                  case 'Melania': oBgColor = '#800080'; oTextClass = 'text-white'; oBadgeClass = 'bg-purple-900 border-purple-700 text-white'; oBorderClass = 'border-purple-900'; break;
+                  case 'melania': oBgColor = '#800080'; oTextClass = 'text-white'; oBadgeClass = 'bg-purple-900 border-purple-700 text-white'; oBorderClass = 'border-purple-900'; break;
                   case 'sara': oBgColor = '#B2FFFF'; oTextClass = 'text-cyan-950'; oBadgeClass = 'bg-cyan-200 border-cyan-400 text-cyan-900'; oBorderClass = 'border-cyan-400'; break;
                   case 'costanza': oBgColor = '#FF00FF'; oTextClass = 'text-white'; oBadgeClass = 'bg-fuchsia-900 border-fuchsia-700 text-white'; oBorderClass = 'border-fuchsia-900'; break;
                   case 'giulia': oBgColor = '#FFA500'; oTextClass = 'text-orange-950'; oBadgeClass = 'bg-orange-200 border-orange-400 text-orange-950'; oBorderClass = 'border-orange-600'; break;
-                  case 'Giancarlo': oBgColor = '#008000'; oTextClass = 'text-white'; oBadgeClass = 'bg-green-900 border-green-700 text-white'; oBorderClass = 'border-green-900'; break;
+                  case 'giancarlo': oBgColor = '#008000'; oTextClass = 'text-white'; oBadgeClass = 'bg-green-900 border-green-700 text-white'; oBorderClass = 'border-green-900'; break;
                   case 'paolo': oBgColor = '#FF6F61'; oTextClass = 'text-white'; oBadgeClass = 'bg-rose-900 border-rose-700 text-white'; oBorderClass = 'border-rose-900'; break;
                 }
 
@@ -164,6 +167,15 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onDelet
                   textSecondaryClass = "text-red-700";
                   badgeClass = "bg-red-200 text-red-800 border-red-300";
                 }
+
+                const partner = lead.accompagnato_da_id ? leads.find(l => l.id === lead.accompagnato_da_id) : null;
+                const pQuery = partnerSearch[lead.id] || '';
+                const pResults = pQuery.length >= 2 
+                  ? leads.filter(l => 
+                      l.id !== lead.id && 
+                      `${l.nome} ${l.cognome}`.toLowerCase().includes(pQuery.toLowerCase())
+                    ).slice(0, 5)
+                  : [];
 
                 return (
                   <tr key={lead.id} style={rowStyle} className={`group ${rowColorClass} shadow-sm border border-gray-100 hover:shadow-2xl transition-all duration-300 rounded-[2rem] overflow-hidden`}>
@@ -198,6 +210,52 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onDelet
                       <div className={`text-[14px] font-black uppercase tracking-tighter px-5 py-3 rounded-2xl border-2 inline-block ${lead.bloccato ? badgeClass : 'bg-slate-50 border-slate-100 text-gray-800'}`}>
                         {lead.dipartimento_interesse || lead.corso_di_interesse || '-'}
                       </div>
+                    </td>
+                    <td className="px-8 py-10 min-w-[200px]">
+                      {partner ? (
+                        <div className="flex flex-col items-center">
+                          <div className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg animate-fadeIn border-b-4 border-indigo-800">
+                            <span className="text-[10px] font-black uppercase tracking-tighter">🔗 {partner.nome} {partner.cognome}</span>
+                            <button 
+                              onClick={() => onLinkLeads?.(lead.id, null)}
+                              className="hover:scale-125 transition-transform bg-indigo-500 rounded-full p-1"
+                              title="Scollega"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={5} d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="relative group/partner">
+                          <input 
+                            type="text"
+                            placeholder="CERCA PARTNER..."
+                            value={pQuery}
+                            onChange={(e) => setPartnerSearch(s => ({ ...s, [lead.id]: e.target.value }))}
+                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 text-[10px] font-black uppercase outline-none focus:border-indigo-400 transition-all text-center"
+                          />
+                          {pResults.length > 0 && (
+                            <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 p-2 animate-fadeIn min-w-[180px]">
+                              {pResults.map(p => (
+                                <button
+                                  key={p.id}
+                                  onClick={() => {
+                                    onLinkLeads?.(lead.id, p.id);
+                                    setPartnerSearch(s => ({ ...s, [lead.id]: '' }));
+                                  }}
+                                  className="w-full text-left p-3 hover:bg-indigo-50 rounded-lg transition-colors border-b last:border-0 border-gray-50 group/item flex items-center justify-between"
+                                >
+                                  <div>
+                                    <div className="text-[11px] font-black uppercase text-gray-900 group-hover/item:text-indigo-600 leading-tight">{p.nome} {p.cognome}</div>
+                                    <div className="text-[9px] font-bold text-gray-400">{p.cellulare}</div>
+                                  </div>
+                                  <span className="text-xl opacity-0 group-hover/item:opacity-100 transition-opacity">🤝</span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </td>
                     <td className="px-8 py-10 text-center">
                       <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black uppercase border-2 ${lead.bloccato ? badgeClass : 'bg-gray-50 border-gray-100 text-gray-600'}`}>
@@ -328,7 +386,7 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onDelet
               })
             ) : (
               <tr>
-                <td colSpan={10 + dynamicFields.length} className="px-8 py-60 text-center">
+                <td colSpan={11 + dynamicFields.length} className="px-8 py-60 text-center">
                   <p className="text-slate-200 font-black uppercase tracking-[0.8em] text-lg italic">Nessun Dato</p>
                 </td>
               </tr>

@@ -675,7 +675,7 @@ const escapeCSV = (val: string): string => {
 
 export const generateCSV = (leads: Lead[], templateSnapshot?: TemplateSnapshot): string => {
   // Colonne base (invariate) + nuova intestazione Tipo Leads e Invio Zapier all'inizio
-  const baseHeaders = ['Tipo Leads', 'Invio Zapier', 'Nome', 'Cognome', 'Corso di Interesse', 'Telefono', 'E-mail', 'Fonte', 'Accompagnatore', 'Orientatore', 'Orientamento Fatto', 'Esito Iscrizione', 'Bloccato', 'Privacy Accettata', 'Stato Check-in', 'Data'];
+  const baseHeaders = ['Tipo Leads', 'Invio Zapier', 'Nome', 'Cognome', 'Corso di Interesse', 'Insieme a', 'Telefono', 'E-mail', 'Fonte', 'Accompagnatore', 'Orientatore', 'Orientamento Fatto', 'Esito Iscrizione', 'Bloccato', 'Privacy Accettata', 'Stato Check-in', 'Data'];
 
   // Colonne dinamiche (solo se snapshot presente)
   const dynamicFields = templateSnapshot
@@ -702,12 +702,20 @@ export const generateCSV = (leads: Lead[], templateSnapshot?: TemplateSnapshot):
 
     const zapierStatus = l.zapier_synced ? 'Inviato' : 'Non Inviato';
 
+    // Trova partner per nome nel CSV
+    let partnerName = '';
+    if (l.accompagnato_da_id) {
+      const p = leads.find(lead => lead.id === l.accompagnato_da_id);
+      if (p) partnerName = `${p.nome} ${p.cognome}`;
+    }
+
     return [
       tipoLeads,
       zapierStatus,
       l.nome,
       l.cognome,
       l.dipartimento_interesse || l.corso_di_interesse || '',
+      partnerName,
       l.cellulare,
       l.email,
       l.come_ci_hai_conosciuto || '',
