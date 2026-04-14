@@ -116,303 +116,283 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onLinkL
           </div>
         </div>
       </div>
+      <div className="px-8 pb-12 space-y-4 pt-6">
+        {/* Intestazione compatta */}
+        <div className="flex items-center text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] px-6 pb-2 border-b-2 border-gray-100">
+            <div className="w-12 text-center">N°</div>
+            <div className="w-[35%]">Lead Info & Corso</div>
+            <div className="w-[15%] text-center">Partner</div>
+            <div className="w-[40%] text-center">Assegnazione & Status</div>
+            <div className="w-[10%] text-right pr-6">Azioni</div>
+        </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-separate border-spacing-y-4 px-8">
-          <thead className="text-gray-400 text-[11px] font-black uppercase tracking-[0.4em]">
-            <tr>
-              <th className="px-6 py-4 text-center">N°</th>
-              <th className="px-8 py-4">Informazioni Lead</th>
-              <th className="px-8 py-4">Corso</th>
-              <th className="px-8 py-4 text-center whitespace-nowrap">Insieme a</th>
-              <th className="px-8 py-4 text-center">Accompagnatore</th>
-              <th className="px-8 py-4 text-center">Presenza</th>
-              <th className="px-8 py-4">Orientatore</th>
-              <th className="px-8 py-4 text-center">Blocca</th>
-              <th className="px-8 py-4 text-center">Orientamento</th>
-              <th className="px-8 py-4 text-center">Iscrizione</th>
-              <th className="px-8 py-4 text-right">Orario</th>
-              {/* PHASE 2: colonne dinamiche */}
-              {dynamicFields.map(f => (
-                <th key={f.key} className="px-8 py-4 text-center whitespace-nowrap">{f.label}</th>
-              ))}
-              <th className="px-8 py-4 text-center">Elimina</th>
-            </tr>
-          </thead>
-          <tbody className="space-y-4">
-            {filteredLeads.length > 0 ? (
-              filteredLeads.map((lead, index) => {
-                // Logica colore riga: lilla acceso se bloccato, verde se orientamento fatto
-                let rowColorClass = "bg-white";
-                let rowStyle: React.CSSProperties | undefined = undefined;
-                let textPrimaryClass = "text-gray-950";
-                let textSecondaryClass = "text-gray-400";
-                let badgeClass = "bg-slate-100 text-slate-500 border-slate-100";
+        {filteredLeads.length > 0 ? (
+          filteredLeads.map((lead, index) => {
+            // Logica base riga
+            let baseStyles = "bg-white border-gray-200 text-gray-900";
+            let opac = "opacity-100";
+            let rowStyle: React.CSSProperties | undefined = undefined;
 
-                const oInfo = (lead.orientatore || '').toLowerCase();
-                let oBgColor = '';
-                let oTextClass = '';
-                let oBadgeClass = '';
-                let oBorderClass = '';
+            const oInfo = (lead.orientatore || '').toLowerCase();
+            let oBgColor = '';
+            let oTextClass = '';
+            let oBadgeClass = '';
 
-                switch (oInfo) {
-                  case 'melania': oBgColor = '#800080'; oTextClass = 'text-white'; oBadgeClass = 'bg-purple-900 border-purple-700 text-white'; oBorderClass = 'border-purple-900'; break;
-                  case 'sara': oBgColor = '#B2FFFF'; oTextClass = 'text-cyan-950'; oBadgeClass = 'bg-cyan-200 border-cyan-400 text-cyan-900'; oBorderClass = 'border-cyan-400'; break;
-                  case 'costanza': oBgColor = '#FF00FF'; oTextClass = 'text-white'; oBadgeClass = 'bg-fuchsia-900 border-fuchsia-700 text-white'; oBorderClass = 'border-fuchsia-900'; break;
-                  case 'giulia': oBgColor = '#FFA500'; oTextClass = 'text-orange-950'; oBadgeClass = 'bg-orange-200 border-orange-400 text-orange-950'; oBorderClass = 'border-orange-600'; break;
-                  case 'giancarlo': oBgColor = '#008000'; oTextClass = 'text-white'; oBadgeClass = 'bg-green-900 border-green-700 text-white'; oBorderClass = 'border-green-900'; break;
-                  case 'paolo': oBgColor = '#FF6F61'; oTextClass = 'text-white'; oBadgeClass = 'bg-rose-900 border-rose-700 text-white'; oBorderClass = 'border-rose-900'; break;
-                }
+            switch (oInfo) {
+              case 'melania': oBgColor = '#800080'; oTextClass = 'text-white'; oBadgeClass = 'bg-purple-900/50'; break;
+              case 'sara': oBgColor = '#B2FFFF'; oTextClass = 'text-cyan-950'; oBadgeClass = 'bg-white/50 border border-cyan-400'; break;
+              case 'costanza': oBgColor = '#FF00FF'; oTextClass = 'text-white'; oBadgeClass = 'bg-fuchsia-900/50'; break;
+              case 'giulia': oBgColor = '#FFA500'; oTextClass = 'text-orange-950'; oBadgeClass = 'bg-white/50 border border-orange-400'; break;
+              case 'giancarlo': oBgColor = '#008000'; oTextClass = 'text-white'; oBadgeClass = 'bg-green-900/50'; break;
+              case 'paolo': oBgColor = '#FF6F61'; oTextClass = 'text-white'; oBadgeClass = 'bg-rose-900/50'; break;
+            }
 
-                if (lead.bloccato) {
-                  rowColorClass = "bg-purple-200 ring-4 ring-purple-600/50 border-purple-400 translate-x-2";
-                  textPrimaryClass = "text-purple-900";
-                  textSecondaryClass = "text-purple-700";
-                  badgeClass = "bg-purple-300 text-purple-800 border-purple-300";
+            if (lead.bloccato) {
+              if (oBgColor) {
+                rowStyle = { backgroundColor: oBgColor };
+                baseStyles = oTextClass + " border-transparent shadow-xl translate-x-2 ring-4 ring-black/10";
+              } else {
+                baseStyles = "bg-purple-200 text-purple-900 border-purple-400 shadow-xl translate-x-2";
+              }
+              opac = "opacity-100";
+            } else if (lead.orientamento_effettuato) {
+              baseStyles = "bg-emerald-50 text-gray-900 border-emerald-200";
+              opac = "opacity-80";
+            } else if (lead.emergenza && !lead.orientamento_effettuato) {
+              baseStyles = "bg-red-100 text-red-900 border-red-500 animate-[pulse_1s_ease-in-out_infinite] translate-x-1 ring-2 ring-red-400";
+              opac = "opacity-100";
+            }
 
-                  if (oBgColor) {
-                    rowStyle = { backgroundColor: oBgColor };
-                    textPrimaryClass = oTextClass;
-                    textSecondaryClass = oTextClass.includes('white') ? "text-white/80" : oTextClass;
-                    badgeClass = oBadgeClass;
-                    rowColorClass = `ring-4 ring-[${oBgColor}]/50 ${oBorderClass} translate-x-2`;
-                  }
-                } else if (lead.orientamento_effettuato) {
-                  rowColorClass = "bg-emerald-50/40 ring-2 ring-emerald-500/20 opacity-80";
-                }
+            // Partner logic
+            const partner = lead.accompagnato_da_id ? leads.find(l => l.id === lead.accompagnato_da_id) : null;
+            const pQuery = partnerSearch[lead.id] || '';
+            const pResults = pQuery.length >= 2 
+              ? leads.filter(l => l.id !== lead.id && `${l.nome} ${l.cognome}`.toLowerCase().includes(pQuery.toLowerCase())).slice(0, 5)
+              : [];
 
-                if (lead.emergenza && !lead.orientamento_effettuato) {
-                  rowColorClass = "animate-pulse bg-red-100 ring-4 ring-red-500 border-red-500 translate-x-1";
-                  textPrimaryClass = "text-red-900";
-                  textSecondaryClass = "text-red-700";
-                  badgeClass = "bg-red-200 text-red-800 border-red-300";
-                }
-
-                const partner = lead.accompagnato_da_id ? leads.find(l => l.id === lead.accompagnato_da_id) : null;
-                const pQuery = partnerSearch[lead.id] || '';
-                const pResults = pQuery.length >= 2 
-                  ? leads.filter(l => 
-                      l.id !== lead.id && 
-                      `${l.nome} ${l.cognome}`.toLowerCase().includes(pQuery.toLowerCase())
-                    ).slice(0, 5)
-                  : [];
-
-                return (
-                  <tr key={lead.id} style={rowStyle} className={`group ${rowColorClass} shadow-sm border border-gray-100 hover:shadow-2xl transition-all duration-300 rounded-[2rem] overflow-hidden`}>
-                    <td className={`px-6 py-10 text-center font-black ${lead.bloccato || (lead.emergenza && !lead.orientamento_effettuato) ? textSecondaryClass : 'text-gray-300'} text-3xl italic first:rounded-l-[2.5rem] relative`}>
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <span>{index + 1}</span>
-                        <button
-                          onClick={() => onUpdateLeadField?.(lead.id, 'emergenza', !lead.emergenza)}
-                          className={`p-2 rounded-full transition-all ${lead.emergenza ? 'bg-red-500 text-white shadow-lg ring-2 ring-red-300 animate-bounce' : 'bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-500'}`}
-                          title="Segnala Emergenza"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            return (
+              <div key={lead.id} style={rowStyle} className={`group flex items-stretch border-2 rounded-[2rem] transition-all duration-300 ${baseStyles} ${opac} min-h-[100px] overflow-visible`}>
+                
+                {/* 1. N° Emergenza / Presenza */}
+                <div className={`w-16 flex flex-col items-center justify-center p-2 border-r-2 ${lead.bloccato ? 'border-white/20' : 'border-gray-100/50'} relative`}>
+                    <span className="text-2xl font-black italic opacity-30 leading-none">{index + 1}</span>
+                    <button 
+                        onClick={() => onUpdateLeadField?.(lead.id, 'emergenza', !lead.emergenza)}
+                        className={`absolute -left-3 -top-3 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 z-10 ${lead.emergenza && !lead.orientamento_effettuato ? 'bg-red-600 text-white animate-bounce' : 'bg-gray-100 text-gray-400 border-2 border-white'}`}
+                        title="Segnala Emergenza"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                    <td className="px-8 py-10">
-                      <div className={`font-black uppercase text-2xl tracking-tighter leading-none mb-2 ${lead.bloccato ? textPrimaryClass : 'text-gray-950'}`}>
-                        {lead.nome} {lead.cognome}
-                      </div>
-                      <div className={`text-[12px] font-bold uppercase tracking-widest flex items-center gap-2 ${!lead.bloccato && 'text-gray-400'}`}>
-                        <span className={`${lead.bloccato ? badgeClass : 'bg-slate-100 text-slate-500'} px-3 py-1 rounded-full font-black`}>
-                          {lead.cellulare}
+                        </svg>
+                    </button>
+                    {/* Status checkin indicator */}
+                    <div className="mt-3 scale-[0.65] origin-top">
+                        {getStatusBadge(lead.stato_checkin)}
+                    </div>
+                </div>
+
+                {/* 2. Lead Info */}
+                <div className="w-[35%] py-4 pl-6 pr-2 flex flex-col justify-center">
+                    <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xl font-black uppercase tracking-tight leading-none">{lead.nome} {lead.cognome}</span>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${lead.bloccato ? oBadgeClass || 'bg-black/10' : 'bg-gray-100 text-gray-500'}`}>
+                            {lead.cellulare}
                         </span>
-                        <span className={`lowercase font-medium italic ${lead.bloccato ? textSecondaryClass : 'opacity-60'}`}>
-                          {lead.email || 'no-email'}
+                    </div>
+                    
+                    <div className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-bold uppercase tracking-widest ${lead.bloccato ? 'opacity-90' : 'text-gray-400'}`}>
+                        {lead.email && <span className="lowercase">{lead.email}</span>}
+                        <span>•</span>
+                        <span className={`px-2 py-0.5 rounded-lg border text-[10px] ${lead.bloccato ? 'border-current opacity-80' : 'bg-slate-50 border-slate-200 text-slate-700'}`}>
+                           {lead.dipartimento_interesse || lead.corso_di_interesse || '-'}
                         </span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-10">
-                      <div className={`text-[14px] font-black uppercase tracking-tighter px-5 py-3 rounded-2xl border-2 inline-block ${lead.bloccato ? badgeClass : 'bg-slate-50 border-slate-100 text-gray-800'}`}>
-                        {lead.dipartimento_interesse || lead.corso_di_interesse || '-'}
-                      </div>
-                    </td>
-                    <td className="px-8 py-10 min-w-[200px]">
-                      {partner ? (
-                        <div className="flex flex-col items-center">
-                          <div className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg animate-fadeIn border-b-4 border-indigo-800">
-                            <span className="text-[10px] font-black uppercase tracking-tighter">🔗 {partner.nome} {partner.cognome}</span>
-                            <button 
-                              onClick={() => onLinkLeads?.(lead.id, null)}
-                              className="hover:scale-125 transition-transform bg-indigo-500 rounded-full p-1"
-                              title="Scollega"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={5} d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
-                          </div>
+                    </div>
+
+                    {/* PHASE 2: Dynamic Fields Pills */}
+                    {dynamicFields.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-3">
+                        {dynamicFields.map(f => {
+                            const val = lead.answers?.[f.key];
+                            if (val == null || val === '') return null;
+                            const display = typeof val === 'boolean' ? (val ? 'SI' : 'NO') : String(val);
+                            return (
+                                <span key={f.key} className={`px-2 py-1 text-[9px] font-black uppercase rounded shadow-sm ${lead.bloccato ? oBadgeClass || 'bg-black/20 text-white' : 'bg-blue-50 text-blue-700 border border-blue-100'}`}>
+                                    {f.label}: {display}
+                                </span>
+                            );
+                        })}
                         </div>
-                      ) : (
-                        <div className="relative group/partner">
-                          <input 
-                            type="text"
-                            placeholder="CERCA PARTNER..."
-                            value={pQuery}
-                            onChange={(e) => setPartnerSearch(s => ({ ...s, [lead.id]: e.target.value }))}
-                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 text-[10px] font-black uppercase outline-none focus:border-indigo-400 transition-all text-center"
-                          />
-                          {pResults.length > 0 && (
-                            <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 p-2 animate-fadeIn min-w-[180px]">
-                              {pResults.map(p => (
-                                <button
-                                  key={p.id}
-                                  onClick={() => {
-                                    onLinkLeads?.(lead.id, p.id);
-                                    setPartnerSearch(s => ({ ...s, [lead.id]: '' }));
-                                  }}
-                                  className="w-full text-left p-3 hover:bg-indigo-50 rounded-lg transition-colors border-b last:border-0 border-gray-50 group/item flex items-center justify-between"
-                                >
-                                  <div>
-                                    <div className="text-[11px] font-black uppercase text-gray-900 group-hover/item:text-indigo-600 leading-tight">{p.nome} {p.cognome}</div>
-                                    <div className="text-[9px] font-bold text-gray-400">{p.cellulare}</div>
-                                  </div>
-                                  <span className="text-xl opacity-0 group-hover/item:opacity-100 transition-opacity">🤝</span>
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-8 py-10 text-center">
-                      <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black uppercase border-2 ${lead.bloccato ? badgeClass : 'bg-gray-50 border-gray-100 text-gray-600'}`}>
+                    )}
+                </div>
+
+                {/* 3. Partner & Gruppo */}
+                <div className={`w-[15%] p-3 flex flex-col items-center justify-center border-l-2 border-r-2 ${lead.bloccato ? 'border-white/20' : 'border-gray-100/50'}`}>
+                    {/* Tipo Accompagnamento */}
+                    <div className={`px-3 py-1 mb-2 rounded-full text-[10px] font-black uppercase border ${lead.bloccato ? oBadgeClass || 'bg-black/10 border-transparent' : 'bg-gray-50 border-gray-200 text-gray-600'}`}>
                         {(() => {
                           const v = (lead.accompagnatore || '').toLowerCase();
-                          if (!v || v === 'solo' || v.includes('solo')) return <><span>👤</span> Solo</>;
-                          if (v.includes('genitor') || v.includes('famig') || v.includes('tutor')) return <><span>👨‍👩‍👧</span> Famiglia</>;
-                          if (v.includes('amico') || v.includes('amica')) return <><span>👫</span> Amico</>;
-                          return <span className="text-gray-400">—</span>;
+                          if (!v || v === 'solo' || v.includes('solo')) return '👤 Solo';
+                          if (v.includes('genitor') || v.includes('famig') || v.includes('tutor')) return '👨‍👩‍👧 Famiglia';
+                          if (v.includes('amico') || v.includes('amica')) return '👫 Amico';
+                          return '—';
                         })()}
-                      </div>
-                    </td>
-                    <td className="px-8 py-10 text-center">
-                      <div className="flex justify-center">{getStatusBadge(lead.stato_checkin)}</div>
-                    </td>
-                    <td className="px-8 py-10 min-w-[220px]">
-                      <select
-                        value={lead.orientatore || ''}
-                        onChange={(e) => onUpdateLeadField?.(lead.id, 'orientatore', e.target.value)}
-                        style={oBgColor && lead.orientatore ? { backgroundColor: oBgColor, borderColor: oBgColor, color: oTextClass.includes('white') ? 'white' : 'black' } : undefined}
-                        className={`w-full px-6 py-6 rounded-[1.8rem] border-4 font-black uppercase text-sm tracking-[0.1em] outline-none transition-all shadow-xl appearance-none cursor-pointer ${lead.orientatore
-                          ? `ring-8 ring-black/10 scale-[1.05] ${!oBgColor ? 'bg-black text-white border-black' : ''}`
-                          : 'bg-white text-gray-300 border-gray-100 hover:border-gray-400'
-                          }`}
-                      >
-                        <option value="">NON ASSEGNATO</option>
-                        {ORIENTATORI.map(o => <option key={o} value={o}>{o.toUpperCase()}</option>)}
-                      </select>
-                    </td>
-                    <td className="px-8 py-10 text-center">
-                      <div className="flex items-center justify-center">
-                        <button
-                          onClick={() => handleToggleBlocca(lead)}
-                          className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all border-4 shadow-xl ${lead.bloccato
-                            ? 'bg-fuchsia-600 border-fuchsia-400 text-white scale-125 shadow-fuchsia-400 rotate-12 ring-4 ring-fuchsia-600/20'
-                            : 'bg-white border-gray-100 text-gray-200 hover:border-fuchsia-300 hover:text-fuchsia-400 hover:scale-110'
-                            }`}
-                          title={lead.bloccato ? "Sblocca riga" : "Blocca riga (Richiede orientatore)"}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            {lead.bloccato ? (
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            ) : (
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                            )}
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                    <td className="px-8 py-10 text-center">
-                      <div className="flex items-center justify-center">
-                        <button
-                          onClick={() => onUpdateLeadField?.(lead.id, 'orientamento_effettuato', !lead.orientamento_effettuato)}
-                          className={`w-24 h-24 rounded-[2.2rem] flex items-center justify-center transition-all border-4 shadow-2xl ${lead.orientamento_effettuato
-                            ? 'bg-emerald-600 border-emerald-400 text-white scale-110 rotate-3 shadow-emerald-200'
-                            : 'bg-white border-gray-100 text-gray-200 hover:border-gray-400 hover:scale-105'
-                            }`}
-                        >
-                          {lead.orientamento_effettuato ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={7} d="M5 13l4 4L19 7" /></svg>
-                          ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                    <td className="px-8 py-10 text-center">
-                      <div className="flex items-center justify-center">
+                    </div>
+
+                    {/* Link Partner */}
+                    <div className="w-full relative px-2">
+                        {partner ? (
+                            <div className="flex items-center justify-between gap-1 bg-indigo-600 text-white px-2 py-1.5 rounded-lg shadow-sm border border-indigo-700">
+                                <span className="text-[9px] font-black uppercase whitespace-nowrap overflow-hidden text-ellipsis px-1">🔗 {partner.nome}</span>
+                                {!lead.bloccato && (
+                                    <button onClick={() => onLinkLeads?.(lead.id, null)} className="hover:scale-125 transition-transform bg-indigo-800/50 rounded-full p-0.5" title="Scollega">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={5} d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="relative group/partner z-20">
+                                <input 
+                                    type="text"
+                                    placeholder="CERCA PARTNER"
+                                    value={pQuery}
+                                    onChange={(e) => setPartnerSearch(s => ({ ...s, [lead.id]: e.target.value }))}
+                                    disabled={lead.bloccato}
+                                    className={`w-full rounded-lg text-center px-2 py-1.5 text-[9px] font-black uppercase outline-none transition-all placeholder-opacity-50 ${lead.bloccato ? 'bg-transparent text-inherit placeholder-current cursor-not-allowed border-0' : 'bg-gray-50 border border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-gray-900 shadow-inner'}`}
+                                />
+                                {pResults.length > 0 && !lead.bloccato && (
+                                    <div className="absolute z-50 left-1/2 -translate-x-1/2 top-full mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 p-2 w-[180px]">
+                                        {pResults.map(p => (
+                                            <button
+                                                key={p.id}
+                                                onMouseDown={() => {
+                                                    onLinkLeads?.(lead.id, p.id);
+                                                    setPartnerSearch(s => ({ ...s, [lead.id]: '' }));
+                                                }}
+                                                className="w-full text-left p-2 hover:bg-indigo-50 rounded-lg transition-colors border-b last:border-0 border-gray-50 flex items-center justify-between"
+                                            >
+                                                <div>
+                                                  <div className="text-[10px] font-black uppercase text-gray-900 leading-tight">{p.nome} {p.cognome}</div>
+                                                  <div className="text-[8px] font-bold text-gray-400">{p.cellulare}</div>
+                                                </div>
+                                                <span className="text-base ml-1">🤝</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* 4. Operatività (Orientatore + Blocca + Orientamento + Esito) */}
+                <div className={`w-[40%] flex items-center justify-between px-3 ${lead.bloccato ? 'pointer-events-none' : ''}`}>
+                    
+                    {/* Orientatore Dropdown */}
+                    <div className="relative group/ori z-10 w-32">
                         <select
-                          value={lead.esito_iscrizione || ''}
-                          onChange={(e) => {
-                            if (!lead.orientamento_effettuato) {
-                              alert("Devi prima confermare l'appuntamento (Orientamento) per scegliere l'esito!");
-                              return;
-                            }
-                            onUpdateLeadField?.(lead.id, 'esito_iscrizione', e.target.value);
-                          }}
-                          onClick={(e) => {
-                            if (!lead.orientamento_effettuato) {
-                              e.preventDefault();
-                              alert("Devi prima confermare l'appuntamento (Orientamento) per scegliere l'esito!");
-                            }
-                          }}
-                          className={`px-4 py-3 rounded-xl border-4 font-black uppercase text-[10px] tracking-wider outline-none transition-all shadow-sm appearance-none cursor-pointer ${!lead.orientamento_effettuato
-                            ? 'bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed opacity-50'
-                            : lead.esito_iscrizione === 'iscritto'
-                              ? 'bg-emerald-600 text-white border-emerald-500 ring-4 ring-emerald-500/20'
-                              : lead.esito_iscrizione === 'blocco posto'
-                                ? 'bg-amber-500 text-white border-amber-400 ring-4 ring-amber-500/20'
+                            value={lead.orientatore || ''}
+                            onChange={(e) => onUpdateLeadField?.(lead.id, 'orientatore', e.target.value)}
+                            disabled={lead.bloccato}
+                            className={`w-full px-2 py-2.5 rounded-xl text-[10px] font-black uppercase outline-none transition-all cursor-pointer ${lead.bloccato ? 'appearance-none text-center bg-transparent border-0 scale-110 translate-x-4' : 'bg-white border-2 border-gray-200 shadow-sm hover:border-gray-400 text-gray-900'}`}
+                        >
+                            <option value="">NON ASS.</option>
+                            {ORIENTATORI.map(o => <option key={o} value={o}>{o.toUpperCase()}</option>)}
+                        </select>
+                    </div>
+
+                    {/* Blocca Toggle. Needs pointer-events-auto to override father's pointer-events-none */}
+                    <button
+                        onClick={() => handleToggleBlocca(lead)}
+                        className={`pointer-events-auto shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-md mx-2 border-2 ${lead.bloccato ? 'bg-black/20 border-transparent text-white scale-[1.3] rotate-12 -translate-x-2 border border-white/20' : 'bg-white border-gray-200 text-gray-300 hover:text-fuchsia-500 hover:border-fuchsia-300 hover:scale-110'}`}
+                        title={lead.bloccato ? "Sblocca riga" : "Blocca riga per lavorazione"}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            {lead.bloccato ? (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            ) : (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                            )}
+                        </svg>
+                    </button>
+
+                    {/* V flag Orientamento */}
+                    <button
+                        onClick={() => onUpdateLeadField?.(lead.id, 'orientamento_effettuato', !lead.orientamento_effettuato)}
+                        disabled={lead.bloccato}
+                        className={`shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-md border-2 mr-2 ${lead.orientamento_effettuato ? 'bg-emerald-500 border-emerald-400 text-white scale-110 rotate-3 ring-2 ring-emerald-200' : 'bg-white border-gray-200 text-gray-300 hover:text-emerald-500 hover:border-emerald-300 hover:scale-105'}`}
+                        title="Segna orientamento effettuato"
+                    >
+                        {lead.orientamento_effettuato ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={5} d="M5 13l4 4L19 7" /></svg>
+                        ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        )}
+                    </button>
+
+                    {/* Esito Dropdown */}
+                    <div className="w-28 relative z-10">
+                        <select
+                            value={lead.esito_iscrizione || ''}
+                            onChange={(e) => {
+                                if (!lead.orientamento_effettuato) {
+                                  alert("Devi prima confermare l'appuntamento (Orientamento) per scegliere l'esito!");
+                                  return;
+                                }
+                                onUpdateLeadField?.(lead.id, 'esito_iscrizione', e.target.value);
+                            }}
+                            onClick={(e) => {
+                                if (!lead.orientamento_effettuato) {
+                                  e.preventDefault();
+                                  alert("Devi prima confermare l'appuntamento (Orientamento) per scegliere l'esito!");
+                                }
+                            }}
+                            disabled={lead.bloccato}
+                            className={`w-full px-2 py-2.5 rounded-xl border-2 font-black uppercase text-[9px] tracking-wider outline-none transition-all cursor-pointer ${!lead.orientamento_effettuato
+                                ? 'bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed opacity-50'
+                                : lead.esito_iscrizione === 'iscritto'
+                                ? 'bg-emerald-600 text-white border-emerald-500 shadow-lg scale-105'
+                                : lead.esito_iscrizione === 'blocco posto'
+                                ? 'bg-amber-500 text-white border-amber-400 shadow-lg scale-105'
                                 : lead.esito_iscrizione === 'va via prima'
-                                  ? 'bg-slate-700 text-white border-slate-600 ring-4 ring-slate-700/20'
-                                  : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400'
+                                ? 'bg-slate-700 text-white border-slate-600 shadow-lg scale-105'
+                                : 'bg-white text-gray-800 border-gray-300 hover:border-gray-400'
                             }`}
                         >
-                          <option value="">- ESITO -</option>
-                          <option value="blocco posto">BLOCCO</option>
-                          <option value="iscritto">ISCRITTO</option>
-                          <option value="va via prima">VA VIA PRIMA</option>
+                            <option value="">- ESITO -</option>
+                            <option value="blocco posto">BLOCCO</option>
+                            <option value="iscritto">ISCRITTO</option>
+                            <option value="va via prima">VA VIA</option>
                         </select>
-                      </div>
-                    </td>
-                    <td className={`px-8 py-10 text-right font-black ${lead.bloccato ? textSecondaryClass : 'text-gray-300'} text-[11px] italic`}>
-                      {lead.data_checkin?.split(',')[1] || '---'}
-                    </td>
-                    {/* PHASE 2: celle dinamiche */}
-                    {dynamicFields.map(f => {
-                      const val = lead.answers?.[f.key] ?? '';
-                      const display = typeof val === 'boolean' ? (val ? '✓' : '—') : (String(val) || '—');
-                      return (
-                        <td key={f.key} className="px-8 py-10 text-center text-sm font-bold text-gray-500 whitespace-nowrap">
-                          {display}
-                        </td>
-                      );
-                    })}
-                    <td className="px-8 py-10 text-center last:rounded-r-[2.5rem]">
-                      <button
-                        onClick={() => onDeleteLead?.(lead.id)}
-                        className="w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all border-4 bg-white border-gray-100 text-gray-200 hover:border-red-200 hover:text-red-500 hover:bg-red-50 hover:scale-110 shadow-sm hover:shadow-xl"
-                        title="Elimina Lead"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan={11 + dynamicFields.length} className="px-8 py-60 text-center">
-                  <p className="text-slate-200 font-black uppercase tracking-[0.8em] text-lg italic">Nessun Dato</p>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                    </div>
+
+                </div>
+
+                {/* 5. Azioni / Orario / Elimina */}
+                <div className={`w-[10%] p-3 flex flex-col items-center justify-center border-l-2 ${lead.bloccato ? 'border-white/20' : 'border-gray-100/50'}`}>
+                    <div className={`text-[10px] font-black italic opacity-60 mb-2 whitespace-nowrap`}>
+                        {lead.data_checkin?.split(',')[1] || '--:--'}
+                    </div>
+                    {!lead.bloccato && (
+                        <button
+                            onClick={() => onDeleteLead?.(lead.id)}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all bg-gray-50 text-gray-400 hover:text-red-600 hover:bg-red-100 hover:scale-110 shadow-sm"
+                            title="Elimina"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    )}
+                </div>
+
+              </div>
+            );
+          })
+        ) : (
+          <div className="py-40 text-center border-4 border-dashed border-gray-200 rounded-[3rem] bg-gray-50/50">
+              <p className="text-gray-400 font-black uppercase tracking-[0.8em] text-xl italic">Nessun Dato Trovato</p>
+          </div>
+        )}
       </div>
     </div>
   );
