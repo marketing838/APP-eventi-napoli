@@ -116,9 +116,9 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onLinkL
           </div>
         </div>
       </div>
-      <div className="px-8 pb-12 space-y-4 pt-6">
-        {/* Intestazione compatta */}
-        <div className="flex items-center text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] px-6 pb-2 border-b-2 border-gray-100">
+      <div className="px-2 lg:px-8 pb-12 lg:space-y-4 space-y-6 pt-4 lg:pt-6">
+        {/* Intestazione compatta Desktop */}
+        <div className="hidden lg:flex items-center text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] px-6 pb-2 border-b-2 border-gray-100">
             <div className="w-12 text-center">N°</div>
             <div className="w-[35%]">Lead Info & Corso</div>
             <div className="w-[15%] text-center">Partner</div>
@@ -171,10 +171,50 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onLinkL
               : [];
 
             return (
-              <div key={lead.id} style={rowStyle} className={`group flex items-stretch border-2 rounded-[2rem] transition-all duration-300 ${baseStyles} ${opac} min-h-[100px] overflow-visible`}>
-                
-                {/* 1. N° Emergenza / Presenza */}
-                <div className={`w-16 flex flex-col items-center justify-center p-2 border-r-2 ${lead.bloccato ? 'border-white/20' : 'border-gray-100/50'} relative`}>
+              <div key={lead.id} style={rowStyle} className={`group flex flex-col lg:flex-row items-stretch border-2 rounded-2xl lg:rounded-[2rem] transition-all duration-300 ${baseStyles} ${opac} min-h-[100px] overflow-hidden lg:overflow-visible relative`}>
+                {/* Indicatore laterale per Mobile */}
+                <div className="lg:hidden absolute top-0 left-0 w-1.5 h-full opacity-80" style={{backgroundColor: lead.bloccato ? (oBgColor || '#6b7280') : (lead.emergenza && !lead.orientamento_effettuato ? '#ef4444' : lead.orientamento_effettuato ? '#10b981' : '#3b82f6')}}></div>
+
+                {/* Header Card Mobile (Azioni + N°) */}
+                <div className="lg:hidden flex justify-between items-start pt-3 px-4 pl-5">
+                    <div className="flex flex-col gap-1 z-10">
+                        <span className="text-xs font-black text-gray-400">#{index + 1}</span>
+                        {lead.emergenza && !lead.orientamento_effettuato && (
+                            <span className="px-2 py-0.5 w-fit rounded-full text-[10px] font-bold uppercase tracking-widest bg-red-100 text-red-700">Emergenza</span>
+                        )}
+                        {lead.bloccato && (
+                            <span className="px-2 py-0.5 w-fit rounded-full text-[10px] font-bold uppercase tracking-widest bg-black/20 text-white">Bloccato</span>
+                        )}
+                    </div>
+                    
+                    <div className="flex items-center gap-1 z-10">
+                        <button
+                            onClick={() => handleToggleBlocca(lead)}
+                            className={`p-2 rounded-lg transition-colors border shadow-sm ${lead.bloccato ? 'border-white/30 text-white bg-black/20' : 'bg-white border-gray-200 text-gray-400'}`}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                {lead.bloccato ? (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                ) : (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                                )}
+                            </svg>
+                        </button>
+                        {!lead.bloccato && (
+                            <button
+                                onClick={() => onDeleteLead?.(lead.id)}
+                                className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 border border-gray-200 bg-white transition-colors shadow-sm"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+                                </svg>
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* 1. N° Emergenza / Presenza Desktop (nascosto su mobile) */}
+                <div className={`hidden lg:flex w-16 flex-col items-center justify-center p-2 border-r-2 ${lead.bloccato ? 'border-white/20' : 'border-gray-100/50'} relative`}>
                     <span className="text-2xl font-black italic opacity-30 leading-none">{index + 1}</span>
                     <button 
                         onClick={() => onUpdateLeadField?.(lead.id, 'emergenza', !lead.emergenza)}
@@ -192,7 +232,7 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onLinkL
                 </div>
 
                 {/* 2. Lead Info */}
-                <div className="w-[35%] py-4 pl-6 pr-2 flex flex-col justify-center">
+                <div className="lg:w-[35%] py-2 lg:py-4 pl-5 lg:pl-6 pr-4 lg:pr-2 flex flex-col justify-center">
                     <div className="flex items-center gap-2 mb-1">
                         <span className="text-xl font-black uppercase tracking-tight leading-none">{lead.nome} {lead.cognome}</span>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${lead.bloccato ? oBadgeClass || 'bg-black/10' : 'bg-gray-100 text-gray-500'}`}>
@@ -226,9 +266,9 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onLinkL
                 </div>
 
                 {/* 3. Partner & Gruppo */}
-                <div className={`w-[15%] p-3 flex flex-col items-center justify-center border-l-2 border-r-2 ${lead.bloccato ? 'border-white/20' : 'border-gray-100/50'}`}>
+                <div className={`lg:w-[15%] p-3 pl-5 lg:p-3 flex flex-row lg:flex-col items-center lg:justify-center border-t lg:border-t-0 lg:border-l-2 lg:border-r-2 ${lead.bloccato ? 'border-white/10 lg:border-white/20' : 'border-gray-100/50'}`}>
                     {/* Tipo Accompagnamento */}
-                    <div className={`px-3 py-1 mb-2 rounded-full text-[10px] font-black uppercase border ${lead.bloccato ? oBadgeClass || 'bg-black/10 border-transparent' : 'bg-gray-50 border-gray-200 text-gray-600'}`}>
+                    <div className={`mr-2 lg:mr-0 px-3 py-1 lg:mb-2 rounded-full text-[10px] font-black uppercase border whitespace-nowrap ${lead.bloccato ? oBadgeClass || 'bg-black/10 border-transparent' : 'bg-gray-50 border-gray-200 text-gray-600'}`}>
                         {(() => {
                           const v = (lead.accompagnatore || '').toLowerCase();
                           if (!v || v === 'solo' || v.includes('solo')) return '👤 Solo';
@@ -285,10 +325,53 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onLinkL
                 </div>
 
                 {/* 4. Operatività (Orientatore + Blocca + Orientamento + Esito) */}
-                <div className={`w-[40%] flex items-center justify-between px-3 ${lead.bloccato ? 'pointer-events-none' : ''}`}>
+                <div className={`lg:w-[40%] flex-col lg:flex-row flex items-stretch lg:items-center justify-center lg:justify-between px-4 lg:px-3 gap-2 lg:gap-0 pb-4 lg:pb-0 ${lead.bloccato ? 'pointer-events-none' : ''}`}>
                     
-                    {/* Orientatore Dropdown */}
-                    <div className="relative group/ori z-10 w-32">
+                    {/* Griglia mobile dropdown: Orientatore (sx) & Esito (dx) */}
+                    <div className="grid grid-cols-2 lg:hidden gap-3 w-full">
+                        <select
+                            value={lead.orientatore || ''}
+                            onChange={(e) => onUpdateLeadField?.(lead.id, 'orientatore', e.target.value)}
+                            disabled={lead.bloccato}
+                            className={`w-full px-2 py-2 rounded-lg text-xs font-bold uppercase shadow-sm ${lead.bloccato ? 'bg-black/10 text-white border-0 cursor-not-allowed' : 'bg-white border text-gray-900 border-gray-200'}`}
+                        >
+                            <option value="">A: NESSUNO</option>
+                            {ORIENTATORI.map(o => <option key={o} value={o}>{o.toUpperCase()}</option>)}
+                        </select>
+                        <select
+                            value={lead.esito_iscrizione || ''}
+                            onChange={(e) => {
+                                if (!lead.orientamento_effettuato) { alert("Conferma prima l'appuntamento!"); return; }
+                                onUpdateLeadField?.(lead.id, 'esito_iscrizione', e.target.value);
+                            }}
+                            disabled={lead.bloccato}
+                            className={`w-full px-2 py-2 rounded-lg text-xs font-bold uppercase shadow-sm ${!lead.orientamento_effettuato ? 'bg-gray-50 text-gray-400 border border-gray-200 opacity-50' : lead.esito_iscrizione === 'iscritto' ? 'bg-emerald-600 text-white' : lead.esito_iscrizione === 'blocco posto' ? 'bg-amber-500 text-white' : lead.esito_iscrizione === 'va via prima' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900 border border-gray-200'}`}
+                        >
+                            <option value="">- ESITO -</option>
+                            <option value="blocco posto">BLOCCO</option>
+                            <option value="iscritto">ISCRITTO</option>
+                            <option value="va via prima">VA VIA</option>
+                        </select>
+                    </div>
+
+                    {/* V flag Orientamento su mobile */}
+                    <div className="lg:hidden flex items-center justify-between mt-1 bg-white/40 p-2 rounded-lg border border-gray-100/50">
+                        <span className="text-[10px] font-bold uppercase text-gray-500">Avvenuto?</span>
+                        <button
+                            onClick={() => onUpdateLeadField?.(lead.id, 'orientamento_effettuato', !lead.orientamento_effettuato)}
+                            disabled={lead.bloccato}
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm border ${lead.orientamento_effettuato ? 'bg-emerald-500 text-white border-emerald-600' : 'bg-white text-gray-300 border-gray-200'}`}
+                        >
+                             {lead.orientamento_effettuato ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={5} d="M5 13l4 4L19 7" /></svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            )}
+                        </button>
+                    </div>
+
+                    {/* Orientatore Dropdown Desktop */}
+                    <div className="hidden lg:block relative group/ori z-10 w-32">
                         <select
                             value={lead.orientatore || ''}
                             onChange={(e) => onUpdateLeadField?.(lead.id, 'orientatore', e.target.value)}
@@ -300,7 +383,7 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onLinkL
                         </select>
                     </div>
 
-                    {/* Blocca Toggle. Needs pointer-events-auto to override father's pointer-events-none */}
+                    {/* Blocca Toggle Desktop. Needs pointer-events-auto to override father's pointer-events-none */}
                     <button
                         onClick={() => handleToggleBlocca(lead)}
                         className={`pointer-events-auto shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-md mx-2 border-2 ${lead.bloccato ? 'bg-black/20 border-transparent text-white scale-[1.3] rotate-12 -translate-x-2 border border-white/20' : 'bg-white border-gray-200 text-gray-300 hover:text-fuchsia-500 hover:border-fuchsia-300 hover:scale-110'}`}
@@ -315,7 +398,7 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onLinkL
                         </svg>
                     </button>
 
-                    {/* V flag Orientamento */}
+                    {/* V flag Orientamento Desktop */}
                     <button
                         onClick={() => onUpdateLeadField?.(lead.id, 'orientamento_effettuato', !lead.orientamento_effettuato)}
                         disabled={lead.bloccato}
@@ -329,8 +412,8 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onLinkL
                         )}
                     </button>
 
-                    {/* Esito Dropdown */}
-                    <div className="w-28 relative z-10">
+                    {/* Esito Dropdown Desktop */}
+                    <div className="hidden lg:block w-28 relative z-10">
                         <select
                             value={lead.esito_iscrizione || ''}
                             onChange={(e) => {
@@ -367,8 +450,8 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onUpdateLeadField, onLinkL
 
                 </div>
 
-                {/* 5. Azioni / Orario / Elimina */}
-                <div className={`w-[10%] p-3 flex flex-col items-center justify-center border-l-2 ${lead.bloccato ? 'border-white/20' : 'border-gray-100/50'}`}>
+                {/* 5. Azioni / Orario / Elimina (Desktop) */}
+                <div className={`hidden lg:flex w-[10%] p-3 flex-col items-center justify-center border-l-2 ${lead.bloccato ? 'border-white/20' : 'border-gray-100/50'}`}>
                     <div className={`text-[10px] font-black italic opacity-60 mb-2 whitespace-nowrap`}>
                         {lead.data_checkin?.split(',')[1] || '--:--'}
                     </div>
